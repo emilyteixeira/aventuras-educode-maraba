@@ -1,5 +1,6 @@
 """Senhas (argon2id), tokens de sessão e limite de tentativas."""
 
+import asyncio
 import hashlib
 import secrets
 import time
@@ -13,8 +14,14 @@ from starlette.concurrency import run_in_threadpool
 _hasher = PasswordHasher(time_cost=3, memory_cost=65536, parallelism=1)
 
 
+# argon2 usa 64 MiB por hash: limita a 4 simultâneos (turma inteira criando conta de uma vez
+# não pode estourar a memória de um servidor pequeno).
+_hash_slots = asyncio.Semaphore(4)
+
+
 async def hash_password(password: str) -> str:
-    return await run_in_threadpool(_hasher.hash, password)
+    async with _hash_slots:
+        return await run_in_threadpool(_hasher.hash, password)
 
 
 async def verify_password(hash_: str, password: str) -> bool:
@@ -24,7 +31,8 @@ async def verify_password(hash_: str, password: str) -> bool:
         except (VerifyMismatchError, VerificationError, InvalidHashError):
             return False
 
-    return await run_in_threadpool(_check)
+    async with _hash_slots:
+        return await run_in_threadpool(_check)
 
 
 def new_token() -> str:

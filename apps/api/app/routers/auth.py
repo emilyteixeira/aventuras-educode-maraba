@@ -72,7 +72,7 @@ async def register(
 ):
     s = get_settings()
     key = f"reg:{_client_ip(request)}"
-    if not login_limiter.allow(key, 30):
+    if not login_limiter.allow(key, 90):  # escola inteira sai por um IP
         raise HTTPException(429, "Muitas tentativas. Aguarde um minuto.")
     code = body.code.strip()
     if hmac.compare_digest(code.upper(), s.tutor_code.upper()):

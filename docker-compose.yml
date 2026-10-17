@@ -1,0 +1,53 @@
+# Produção/ensaio: `docker compose up -d --build`
+# Com HTTPS automático (domínio): `docker compose --profile https up -d --build`
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: aventuras
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?defina POSTGRES_PASSWORD no .env}
+      POSTGRES_DB: aventuras
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U aventuras"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  app:
+    build: .
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      AVENTURAS_DATABASE_URL: postgresql+asyncpg://aventuras:${POSTGRES_PASSWORD}@db:5432/aventuras
+      AVENTURAS_CLASS_CODE: ${AVENTURAS_CLASS_CODE:?defina AVENTURAS_CLASS_CODE no .env}
+      AVENTURAS_TUTOR_CODE: ${AVENTURAS_TUTOR_CODE:?defina AVENTURAS_TUTOR_CODE no .env}
+      AVENTURAS_COOKIE_SECURE: ${AVENTURAS_COOKIE_SECURE:-false}
+      AVENTURAS_UNLOCK_WORDS: ${AVENTURAS_UNLOCK_WORDS:-}
+      AVENTURAS_UNLOCK_TEMPLATE: ${AVENTURAS_UNLOCK_TEMPLATE:-}
+      AVENTURAS_REWARD_TITLE: ${AVENTURAS_REWARD_TITLE:-}
+      AVENTURAS_REWARD_TEXT: ${AVENTURAS_REWARD_TEXT:-}
+    ports:
+      - "${APP_BIND:-0.0.0.0}:8000:8000"   # LAN: http://IP-DO-MAC:8000 · VPS+HTTPS: APP_BIND=127.0.0.1
+
+  caddy:
+    image: caddy:2-alpine
+    profiles: ["https"]
+    restart: unless-stopped
+    depends_on: [app]
+    environment:
+      DOMAIN: ${DOMAIN:?defina DOMAIN no .env}
+    volumes:
+      - ./infra/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+    ports:
+      - "80:80"
+      - "443:443"
+
+volumes:
+  pgdata:
+  caddy_data:

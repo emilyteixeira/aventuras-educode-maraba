@@ -300,7 +300,7 @@
     "template": "Para vencer um problema grande, eu ___ em partes, procuro o ___, guardo só o ___ e escrevo os ___.",
     "blanks": [
       { "label": "1ª palavra", "accept": ["divido", "divida", "dividir", "decomponho", "decomponha", "decompor"] },
-      { "label": "2ª palavra", "accept": ["padrao", "padrão", "padroes", "padrões"] },
+      { "label": "2ª palavra", "accept": ["padrão", "padrao", "padrões", "padroes"] },
       { "label": "3ª palavra", "accept": ["essencial", "essenciais", "importante"] },
       { "label": "4ª palavra", "accept": ["passos", "passo"] }
     ]

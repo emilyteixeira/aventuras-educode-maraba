@@ -17,3 +17,4 @@ dist/
 /tmp/
 playwright-report/
 test-results/
+!.env.example

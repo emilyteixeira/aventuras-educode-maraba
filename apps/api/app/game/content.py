@@ -41,7 +41,9 @@ def load_era(era_id: str) -> dict:
     if s.unlock_words:
         words = [w.strip() for w in s.unlock_words.split(",") if w.strip()]
         for blank, w in zip(data["unlock"]["blanks"], words, strict=False):
-            blank["accept"] = sorted(set(blank["accept"] + [w]))
+            blank["accept"] = [w, *[a for a in blank["accept"] if a != w]]  # a palavra dos tutores vem primeiro
+    if s.unlock_template:
+        data["unlock"]["template"] = s.unlock_template
     if s.reward_title:
         data["reward"]["title"] = s.reward_title
     if s.reward_text:

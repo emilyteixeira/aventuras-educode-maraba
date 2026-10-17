@@ -31,6 +31,7 @@ class Settings(BaseSettings):
 
     # Sobrescritas do conteúdo secreto (opcionais). Ex.: "dividir,padrão,essencial,passos"
     unlock_words: str | None = None
+    unlock_template: str | None = None  # ex.: "Para vencer um problema grande, eu ___ em partes, ..."
     reward_title: str | None = None
     reward_text: str | None = None
 

@@ -1,0 +1,5 @@
+# HTTPS automático (Let's Encrypt). WebSocket passa direto pelo reverse_proxy.
+{$DOMAIN} {
+	encode gzip
+	reverse_proxy app:8000
+}
