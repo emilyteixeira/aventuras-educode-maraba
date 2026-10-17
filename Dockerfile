@@ -1,7 +1,7 @@
 # Imagem única: compila o front (React) e serve tudo pela API (FastAPI). Banco = serviço `db`.
 FROM node:22-alpine AS web
 WORKDIR /web
-RUN corepack enable
+RUN npm install -g pnpm@10.28.0
 COPY apps/web/package.json apps/web/pnpm-lock.yaml ./
 RUN pnpm install --frozen-lockfile
 COPY apps/web/ ./
