@@ -2,7 +2,7 @@
 
 Aventura gamificada ao vivo (Kahoot + RPG) para ensinar Computação a estudantes de 11–12 anos. **Era 1: Pensamento Computacional** (aula de 120 min com os tutores Hernandes e Emily).
 
-**Comece por:** [`docs/PRD.md`](docs/PRD.md) (requisitos). Handover, deploy e histórico de sessões ficam fora deste repositório público.
+PRD, handover, deploy e histórico de sessões ficam fora deste repositório público.
 
 ## Estado (17/10/2026)
 
