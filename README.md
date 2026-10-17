@@ -2,7 +2,7 @@
 
 Aventura gamificada ao vivo (Kahoot + RPG) para ensinar Computação a estudantes de 11–12 anos. **Era 1: Pensamento Computacional** (aula de 120 min com os tutores Hernandes e Emily).
 
-**Comece por:** [`docs/HANDOVER.md`](docs/HANDOVER.md) (5 min) · [`docs/DEPLOY.md`](docs/DEPLOY.md) (dia da aula) · [`docs/PRD.md`](docs/PRD.md) (requisitos).
+**Comece por:** [`docs/PRD.md`](docs/PRD.md) (requisitos). Handover, deploy e histórico de sessões ficam fora deste repositório público.
 
 ## Estado (17/10/2026)
 
@@ -20,7 +20,7 @@ TypeScript + React 19 + Vite (front) · Python 3.12 + FastAPI + SQLAlchemy async
 
 ## Produção
 
-`docker compose up -d --build` (ver [`docs/DEPLOY.md`](docs/DEPLOY.md)).
+`docker compose up -d --build` (ver `.env.example` e `infra/Caddyfile`).
 
 ## Estrutura
 

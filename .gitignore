@@ -18,3 +18,8 @@ dist/
 playwright-report/
 test-results/
 !.env.example
+
+# Docs privados (não publicar)
+docs/HANDOVER.md
+docs/DEPLOY.md
+docs/sessoes/2026-10-17.md
