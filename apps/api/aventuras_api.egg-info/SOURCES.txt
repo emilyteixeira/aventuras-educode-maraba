@@ -1,0 +1,6 @@
+pyproject.toml
+aventuras_api.egg-info/PKG-INFO
+aventuras_api.egg-info/SOURCES.txt
+aventuras_api.egg-info/dependency_links.txt
+aventuras_api.egg-info/requires.txt
+aventuras_api.egg-info/top_level.txt

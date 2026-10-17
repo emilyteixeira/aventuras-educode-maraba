@@ -1,0 +1,313 @@
+{
+  "id": "era1",
+  "title": "Era 1 — O Vale do Pensamento Computacional",
+  "missions": [
+    {
+      "no": 1,
+      "name": "A Ponte Quebrada",
+      "pillar": "Decomposição",
+      "intro": "A ponte do vale está em pedaços. Quem tenta consertar tudo de uma vez se perde. Descubram como atacar um problema grande.",
+      "questions": [
+        {
+          "id": "m1q1", "type": "mc", "difficulty": 1,
+          "prompt": "Decompor um problema significa...",
+          "options": [
+            "quebrá-lo em partes menores e mais fáceis de resolver",
+            "resolvê-lo o mais rápido possível, sem pensar",
+            "copiar a resposta de um colega",
+            "ignorar os detalhes e torcer pelo melhor"
+          ],
+          "answer": 0,
+          "hint": "A palavra 'decompor' lembra 'desmontar'.",
+          "comic": "🧩➡️🧩🧩🧩",
+          "explanation": "Decompor é dividir o problema grande em pedaços menores. Cada pedaço fica simples de resolver."
+        },
+        {
+          "id": "m1q2", "type": "mc", "difficulty": 2,
+          "prompt": "Vocês vão criar um jogo de plataforma. Qual lista é a melhor decomposição?",
+          "options": [
+            "Fazer o jogo / Terminar o jogo / Publicar o jogo",
+            "Personagem / Cenário / Regras de pontos / Fases",
+            "Jogo bonito / Jogo divertido / Jogo legal",
+            "Começar pelo final / Depois o começo / Depois o meio"
+          ],
+          "answer": 1,
+          "hint": "Uma boa decomposição lista partes concretas, que dá para fazer uma de cada vez.",
+          "comic": "🎮 = 🧍 + 🌄 + ⭐ + 🚪",
+          "explanation": "As partes concretas (personagem, cenário, regras, fases) podem ser feitas e testadas separadamente. As outras listas só repetem a ideia com outras palavras."
+        },
+        {
+          "id": "m1q3", "type": "order", "difficulty": 2, "seconds": 45,
+          "prompt": "Coloque na ordem certa os passos para fazer um sanduíche.",
+          "items": [
+            "Pegar duas fatias de pão",
+            "Passar manteiga em uma fatia",
+            "Colocar o recheio por cima",
+            "Fechar com a outra fatia"
+          ],
+          "hint": "Não dá para colocar o recheio antes de ter o pão.",
+          "comic": "🍞➡️🧈➡️🧀➡️🥪",
+          "explanation": "Cada parte depende da anterior: primeiro o pão, depois a manteiga, o recheio e por último fechar."
+        },
+        {
+          "id": "m1q4", "type": "mc", "difficulty": 2,
+          "prompt": "Um robô precisa atravessar uma sala com 3 obstáculos. Qual estratégia usa decomposição?",
+          "options": [
+            "Programar tudo de uma vez e rezar",
+            "Pedir para o robô tentar até dar certo",
+            "Programar um trecho por vez: desviar do 1º, depois do 2º, depois do 3º",
+            "Remover o robô da sala"
+          ],
+          "answer": 2,
+          "hint": "Pense em resolver um obstáculo e só depois ir para o próximo.",
+          "comic": "🤖 → 🧱 → 🧱 → 🧱",
+          "explanation": "Resolver um obstáculo de cada vez é decompor: cada trecho é um problema pequeno que dá para testar."
+        }
+      ]
+    },
+    {
+      "no": 2,
+      "name": "O Corredor das Runas",
+      "pillar": "Reconhecimento de padrões",
+      "intro": "As runas das paredes se repetem. Quem enxerga o padrão passa sem tropeçar.",
+      "questions": [
+        {
+          "id": "m2q1", "type": "mc", "difficulty": 2,
+          "prompt": "Qual número completa a sequência? 2, 4, 8, 16, ?",
+          "options": ["18", "24", "32", "20"],
+          "answer": 2,
+          "hint": "Cada número é o anterior multiplicado pelo mesmo valor.",
+          "comic": "2 ×2 → 4 ×2 → 8 ×2 → 16 ×2 → ?",
+          "explanation": "O padrão é multiplicar por 2 a cada passo. 16 × 2 = 32."
+        },
+        {
+          "id": "m2q2", "type": "mc", "difficulty": 2,
+          "prompt": "🔵🔴🔴🔵🔴🔴🔵🔴🔴 ... Qual é a próxima runa?",
+          "options": ["🔴", "🔵", "🟢", "🔴🔴"],
+          "answer": 1,
+          "hint": "Procure o bloco que se repete.",
+          "comic": "[🔵🔴🔴] [🔵🔴🔴] [🔵🔴🔴] [?]",
+          "explanation": "O bloco 🔵🔴🔴 se repete. Depois de três blocos completos começa outro, então a próxima é 🔵."
+        },
+        {
+          "id": "m2q3", "type": "mc", "difficulty": 2,
+          "prompt": "Por que reconhecer padrões ajuda a programar?",
+          "options": [
+            "Porque deixa o código mais colorido",
+            "Porque dá para resolver problemas parecidos com a mesma solução",
+            "Porque o computador gosta de repetição e fica feliz",
+            "Porque elimina todos os erros do programa"
+          ],
+          "answer": 1,
+          "hint": "Pense em reaproveitar o que já funcionou.",
+          "comic": "🔁💡",
+          "explanation": "Quando vemos que dois problemas são parecidos, usamos a mesma solução (por exemplo, um laço de repetição) em vez de começar do zero."
+        },
+        {
+          "id": "m2q4", "type": "mc", "difficulty": 3,
+          "prompt": "Inimigos surgem nos segundos 3, 6, 9 e 12. Em qual segundo surge o próximo?",
+          "options": ["13", "14", "15", "18"],
+          "answer": 2,
+          "hint": "Veja a diferença entre um segundo e o seguinte.",
+          "comic": "3 +3 → 6 +3 → 9 +3 → 12 +3 → ?",
+          "explanation": "A cada 3 segundos surge um inimigo: 12 + 3 = 15."
+        }
+      ]
+    },
+    {
+      "no": 3,
+      "name": "O Espelho da Essência",
+      "pillar": "Abstração",
+      "intro": "No espelho, só aparece o que é essencial. O resto some. Descubram o que importa em cada problema.",
+      "questions": [
+        {
+          "id": "m3q1", "type": "mc", "difficulty": 2,
+          "prompt": "Abstração é...",
+          "options": [
+            "esquecer tudo o que foi aprendido",
+            "focar no que importa e ignorar detalhes que não ajudam",
+            "desenhar de forma abstrata, sem sentido",
+            "guardar o maior número possível de detalhes"
+          ],
+          "answer": 1,
+          "hint": "Pense no que fica depois que você tira o que não ajuda.",
+          "comic": "🐕 → 🐾 + 👂 + 🐕‍🦺 (só o essencial)",
+          "explanation": "Abstrair é escolher o que é importante para o problema e deixar de lado o resto."
+        },
+        {
+          "id": "m3q2", "type": "mc", "difficulty": 3,
+          "prompt": "O mapa do metrô mostra linhas retas e estações, sem as curvas reais dos trilhos. Por quê?",
+          "options": [
+            "Porque o desenhista tinha preguiça",
+            "Porque as curvas são segredo",
+            "Porque quem usa o metrô só precisa saber as estações e as conexões",
+            "Porque os trilhos são sempre retos"
+          ],
+          "answer": 2,
+          "hint": "O que a pessoa precisa saber para ir de uma estação a outra?",
+          "comic": "🚇 ● ─── ● ─── ●",
+          "explanation": "As curvas não ajudam o passageiro. O mapa guarda só o essencial (estações e conexões) e fica fácil de ler. Isso é abstração."
+        },
+        {
+          "id": "m3q3", "type": "mc", "difficulty": 3,
+          "prompt": "Vocês vão ensinar um programa a reconhecer um cachorro. Qual informação é mais essencial?",
+          "options": [
+            "A cor da coleira",
+            "O nome do dono",
+            "Tem quatro patas, pelos e late",
+            "O brinquedo favorito"
+          ],
+          "answer": 2,
+          "hint": "Escolha o que vale para qualquer cachorro, não só para um.",
+          "comic": "🐕 = 4 patas + pelos + latido",
+          "explanation": "Características que valem para todos os cachorros servem para o programa. Coleira e brinquedo mudam de cachorro para cachorro."
+        },
+        {
+          "id": "m3q4", "type": "mc", "difficulty": 3,
+          "prompt": "Qual destas opções NÃO é um exemplo de abstração?",
+          "options": [
+            "Desenhar um boneco de palitos para representar uma pessoa",
+            "Usar a letra x para representar um número que ainda não sabemos",
+            "Copiar cada detalhe da cidade, até cada folha de árvore, num mapa para turistas",
+            "Usar o ícone de uma lupa para representar 'buscar'"
+          ],
+          "answer": 2,
+          "hint": "Abstrair é tirar detalhes. Qual opção faz o contrário?",
+          "comic": "🗺️ ❌ cada folha",
+          "explanation": "Copiar todos os detalhes é o contrário de abstrair. As outras opções guardam só a ideia principal."
+        }
+      ]
+    },
+    {
+      "no": 4,
+      "name": "A Forja dos Passos",
+      "pillar": "Algoritmos",
+      "intro": "Na forja, um passo fora de ordem estraga a espada inteira. Hora de pensar como o computador: passo a passo.",
+      "questions": [
+        {
+          "id": "m4q1", "type": "mc", "difficulty": 2,
+          "prompt": "Um algoritmo é...",
+          "options": [
+            "um tipo de computador muito rápido",
+            "uma sequência de passos claros e ordenados para resolver um problema",
+            "um programa que nunca dá erro",
+            "uma linguagem de programação"
+          ],
+          "answer": 1,
+          "hint": "Pense numa receita de bolo.",
+          "comic": "📜 1 → 2 → 3 → ✅",
+          "explanation": "Algoritmo é uma sequência de passos ordenados e sem ambiguidade. Uma receita de bolo é um algoritmo."
+        },
+        {
+          "id": "m4q2", "type": "order", "difficulty": 3, "seconds": 45,
+          "prompt": "Coloque na ordem certa o algoritmo para escovar os dentes.",
+          "items": [
+            "Molhar a escova",
+            "Colocar a pasta na escova",
+            "Escovar todos os dentes",
+            "Enxaguar a boca"
+          ],
+          "hint": "A pasta vai na escova, e o enxágue só vem depois de escovar.",
+          "comic": "🪥💧➡️🪥🧴➡️🦷✨➡️🚰",
+          "explanation": "A ordem importa: molhar, colocar a pasta, escovar e só então enxaguar."
+        },
+        {
+          "id": "m4q3", "type": "mc", "difficulty": 3,
+          "prompt": "Algoritmo para entrar em casa: (1) abrir a porta (2) pegar a chave (3) destrancar (4) entrar. O que precisa ser corrigido?",
+          "options": [
+            "Nada, está perfeito",
+            "Pegar a chave e destrancar devem vir antes de abrir a porta",
+            "Entrar deve ser o primeiro passo",
+            "Falta o passo 'sair de casa' no começo"
+          ],
+          "answer": 1,
+          "hint": "Dá para abrir uma porta trancada?",
+          "comic": "🔑 → 🔓 → 🚪 → 🏠",
+          "explanation": "Um algoritmo funciona só se a ordem estiver certa: pegar a chave, destrancar, abrir e entrar."
+        },
+        {
+          "id": "m4q4", "type": "mc", "difficulty": 3,
+          "prompt": "Um robô começa em (0,0) virado para o NORTE (norte = para cima). Ele executa: andar 2; virar à direita; andar 1. Onde ele termina? (Formato: x leste, y norte.)",
+          "options": ["(2,1)", "(1,2)", "(0,3)", "(-1,2)"],
+          "answer": 1,
+          "hint": "Ande 2 para cima. Virar à direita (olhando para o norte) leva para o leste.",
+          "comic": "⬆️⬆️ ➡️",
+          "explanation": "Andar 2 ao norte leva a (0,2). Virar à direita muda o rumo para leste. Andar 1 leva a (1,2)."
+        }
+      ]
+    },
+    {
+      "no": 5,
+      "name": "O Guardião do Selo",
+      "pillar": "Desafio final",
+      "boss": true,
+      "intro": "O Guardião testa tudo o que vocês aprenderam. Pontos valem ×1,5. Ao final, o Selo da Era 1 espera por quem decifrá-lo.",
+      "questions": [
+        {
+          "id": "m5q1", "type": "mc", "difficulty": 3, "seconds": 40,
+          "prompt": "Vocês vão fazer um app de lista de compras. Qual descrição usa os quatro pilares do pensamento computacional?",
+          "options": [
+            "Fazer o app e testar no celular",
+            "Dividir em telas; notar que todo item tem nome e quantidade; mostrar só o essencial de cada item; definir os passos para adicionar um item",
+            "Copiar um app que já existe",
+            "Desenhar o ícone mais bonito possível"
+          ],
+          "answer": 1,
+          "hint": "Procure a opção que tem dividir, padrão, essencial e passos.",
+          "comic": "📱 = 🧩 + 🔁 + 🎯 + 📜",
+          "explanation": "Dividir em telas (decomposição), ver o que todo item tem em comum (padrão), mostrar só o essencial (abstração) e definir os passos (algoritmo)."
+        },
+        {
+          "id": "m5q2", "type": "mc", "difficulty": 3, "seconds": 40,
+          "prompt": "Qual número completa a sequência? 1, 1, 2, 3, 5, 8, ?",
+          "options": ["11", "12", "13", "16"],
+          "answer": 2,
+          "hint": "Cada número é a soma dos dois anteriores.",
+          "comic": "5 + 8 = ?",
+          "explanation": "O padrão é somar os dois números anteriores: 5 + 8 = 13."
+        },
+        {
+          "id": "m5q3", "type": "order", "difficulty": 3, "seconds": 50,
+          "prompt": "Coloque na ordem uma boa forma de atacar o desafio de criar um jogo de memória.",
+          "items": [
+            "Listar as partes: cartas, tabuleiro e pontos",
+            "Notar o que se repete: as cartas formam pares",
+            "Ignorar o que não importa: a cor do fundo",
+            "Escrever as regras passo a passo"
+          ],
+          "hint": "Primeiro divida, depois procure repetições, depois escolha o essencial e por fim escreva os passos.",
+          "comic": "🧩 → 🔁 → 🎯 → 📜",
+          "explanation": "Primeiro dividimos o problema, depois buscamos padrões, escolhemos o essencial e por fim escrevemos o algoritmo."
+        },
+        {
+          "id": "m5q4", "type": "mc", "difficulty": 3, "seconds": 40,
+          "prompt": "Um colega diz: 'Abstração é esquecer tudo.' Qual resposta corrige melhor?",
+          "options": [
+            "Está certo, abstrair é jogar tudo fora.",
+            "Abstrair é escolher o que é importante para o problema; só deixamos de lado o que não ajuda.",
+            "Abstração só serve para desenhar.",
+            "Abstração é fazer o computador esquecer."
+          ],
+          "answer": 1,
+          "hint": "Esquecer tudo seria perder também o que precisamos.",
+          "comic": "🎯 ≠ 🗑️",
+          "explanation": "Abstrair é filtrar: guardamos o que serve ao problema e deixamos de lado o resto."
+        }
+      ]
+    }
+  ],
+  "unlock": {
+    "template": "Para vencer um problema grande, eu ___ em partes, procuro o ___, guardo só o ___ e escrevo os ___.",
+    "blanks": [
+      { "label": "1ª palavra", "accept": ["divido", "divida", "dividir", "decomponho", "decomponha", "decompor"] },
+      { "label": "2ª palavra", "accept": ["padrao", "padrão", "padroes", "padrões"] },
+      { "label": "3ª palavra", "accept": ["essencial", "essenciais", "importante"] },
+      { "label": "4ª palavra", "accept": ["passos", "passo"] }
+    ]
+  },
+  "reward": {
+    "title": "O Selo do Cartógrafo",
+    "text": "Vocês decifraram o primeiro selo! O Cartógrafo desenha o mapa da Era 2 só para quem chegou até aqui. Os tutores guardam uma surpresa para o grupo.",
+    "item": "capa_cartografo"
+  }
+}
