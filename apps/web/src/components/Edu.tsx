@@ -1,6 +1,7 @@
 import type { Appearance } from "../types";
 
-// Edu em camadas SVG. Ids vêm do catálogo do servidor (apps/api/app/catalog.py).
+// Edu em pixel art (SVG). Grade de 30×40 "pixels" de 4 unidades (viewBox 120×160).
+// Ids vêm do catálogo do servidor (apps/api/app/catalog.py).
 const SKIN: Record<string, string> = {
   pele1: "#fde3cf", pele2: "#f8d2b4", pele3: "#f1bf98", pele4: "#e3a97a",
   pele5: "#d39565", pele6: "#c08052", pele7: "#a96b3f", pele8: "#8d5530",
@@ -18,87 +19,227 @@ const OUTFIT: Record<string, { main: string; trim: string }> = {
   mago: { main: "#7c3aed", trim: "#fcd34d" },
   exploradora: { main: "#2f855a", trim: "#e9d8a6" },
 };
+const OUTLINE = "#07060b";
 
 export const skinHex = (id: string) => SKIN[id] ?? "#f1bf98";
 export const robotHex = (id: string) => ROBOT[id] ?? "#4fd1c5";
 export const hairHex = (id: string) => HAIR[id] ?? "#1c1c26";
 
-function Hair({ style, color, top }: { style: string; color: string; top: number }) {
+const U = 4;
+
+/** Retângulo com cantos "mordidos" (1 pixel), como em sprite de 16 bits. */
+function notched(x: number, y: number, w: number, h: number) {
+  return `M${(x + 1) * U} ${y * U}h${(w - 2) * U}v${U}h${U}v${(h - 2) * U}h${-U}v${U}h${-(w - 2) * U}v${-U}h${-U}v${-(h - 2) * U}h${U}z`;
+}
+
+/** Bloco de pixels. `o` desenha contorno escuro de 1 pixel; `n` morde os cantos. */
+function B({ x, y, w, h, f, o, n, className }: { x: number; y: number; w: number; h: number; f: string; o?: boolean; n?: boolean; className?: string }) {
+  const shape = (xx: number, yy: number, ww: number, hh: number, fill: string, cls?: string) =>
+    n || o ? <path d={notched(xx, yy, ww, hh)} fill={fill} className={cls} /> : <rect x={xx * U} y={yy * U} width={ww * U} height={hh * U} fill={fill} className={cls} />;
+  return (
+    <>
+      {o && shape(x - 1, y - 1, w + 2, h + 2, OUTLINE)}
+      {shape(x, y, w, h, f, className)}
+    </>
+  );
+}
+
+function Hair({ style, color }: { style: string; color: string }) {
   const c = color;
+  const cap = (
+    <>
+      <B x={7} y={5} w={16} h={4} f={c} n />
+      <B x={7} y={8} w={2} h={4} f={c} />
+      <B x={21} y={8} w={2} h={4} f={c} />
+      <B x={11} y={8} w={5} h={1} f={c} />
+    </>
+  );
   switch (style) {
     case "curto":
-      return <path d={`M34 ${top + 24} Q34 ${top - 2} 60 ${top - 2} Q86 ${top - 2} 86 ${top + 24} Q76 ${top + 8} 60 ${top + 8} Q44 ${top + 8} 34 ${top + 24}Z`} fill={c} />;
+      return cap;
     case "longo":
       return (
-        <g fill={c}>
-          <path d={`M33 ${top + 26} Q33 ${top - 3} 60 ${top - 3} Q87 ${top - 3} 87 ${top + 26} Q76 ${top + 8} 60 ${top + 8} Q44 ${top + 8} 33 ${top + 26}Z`} />
-          <rect x="31" y={top + 14} width="9" height="46" rx="4" />
-          <rect x="80" y={top + 14} width="9" height="46" rx="4" />
-        </g>
+        <>
+          {cap}
+          <B x={6} y={9} w={3} h={13} f={c} />
+          <B x={21} y={9} w={3} h={13} f={c} />
+        </>
       );
     case "cacheado":
       return (
-        <g fill={c}>
-          {[38, 49, 60, 71, 82].map((x, i) => (
-            <circle key={x} cx={x} cy={top + (i % 2 ? 4 : 8)} r="11" />
+        <>
+          {[7, 11, 15, 19].map((x, i) => (
+            <B key={x} x={x} y={i % 3 ? 3 : 4} w={4} h={4} f={c} n />
           ))}
-          <circle cx="33" cy={top + 22} r="7" />
-          <circle cx="87" cy={top + 22} r="7" />
-        </g>
+          <B x={7} y={6} w={16} h={3} f={c} />
+          <B x={6} y={8} w={3} h={6} f={c} n />
+          <B x={21} y={8} w={3} h={6} f={c} n />
+        </>
       );
     case "coque":
       return (
-        <g fill={c}>
-          <circle cx="60" cy={top - 8} r="9" />
-          <path d={`M34 ${top + 24} Q34 ${top - 2} 60 ${top - 2} Q86 ${top - 2} 86 ${top + 24} Q76 ${top + 8} 60 ${top + 8} Q44 ${top + 8} 34 ${top + 24}Z`} />
-        </g>
+        <>
+          <B x={12} y={1} w={6} h={5} f={c} n />
+          {cap}
+        </>
       );
     case "moicano":
-      return <path d={`M52 ${top + 4} L56 ${top - 14} L60 ${top - 2} L64 ${top - 16} L68 ${top + 4}Z`} fill={c} />;
+      return (
+        <>
+          <B x={14} y={0} w={2} h={1} f={c} />
+          <B x={13} y={1} w={4} h={7} f={c} />
+        </>
+      );
     default:
       return null;
   }
 }
 
-function Accessory({ id, robot, top }: { id: string; robot: boolean; top: number }) {
-  const eyeY = robot ? 48 : 56;
+function Accessory({ id, robot }: { id: string; robot: boolean }) {
+  const eyeY = robot ? 10 : 11;
   switch (id) {
     case "oculos":
       return (
-        <g fill="none" stroke="#222" strokeWidth="2.5">
-          <circle cx="50" cy={eyeY} r="7" fill="#ffffff55" />
-          <circle cx="70" cy={eyeY} r="7" fill="#ffffff55" />
-          <path d={`M57 ${eyeY}h6`} />
+        <g>
+          {[10, 16].map((x) => (
+            <g key={x}>
+              <rect x={x * U} y={eyeY * U} width={4 * U} height={5 * U} fill="#ffffff40" stroke="#1a1a22" strokeWidth={U / 2} />
+            </g>
+          ))}
+          <B x={14} y={eyeY + 2} w={2} h={1} f="#1a1a22" />
         </g>
       );
     case "chapeu":
       return (
-        <g>
-          <ellipse cx="60" cy={top + 4} rx="34" ry="7" fill="#a16207" />
-          <path d={`M42 ${top + 4} Q42 ${top - 20} 60 ${top - 20} Q78 ${top - 20} 78 ${top + 4}Z`} fill="#ca8a04" />
-          <rect x="42" y={top - 4} width="36" height="5" fill="#7c2d12" />
-        </g>
+        <>
+          <B x={9} y={1} w={12} h={5} f="#ca8a04" o n />
+          <B x={9} y={4} w={12} h={1} f="#7c2d12" />
+          <B x={5} y={6} w={20} h={2} f="#a16207" o />
+        </>
       );
     case "coroa":
-      return <path d={`M40 ${top + 6} L44 ${top - 12} L52 ${top - 2} L60 ${top - 16} L68 ${top - 2} L76 ${top - 12} L80 ${top + 6}Z`} fill="#f6c453" stroke="#b7791f" strokeWidth="2" />;
+      return (
+        <>
+          <B x={9} y={2} w={2} h={3} f="#f6c453" />
+          <B x={14} y={1} w={2} h={4} f="#f6c453" />
+          <B x={19} y={2} w={2} h={3} f="#f6c453" />
+          <B x={9} y={4} w={12} h={3} f="#f6c453" o />
+          <B x={14} y={5} w={2} h={1} f="#ff7f9e" />
+          <B x={10} y={5} w={1} h={1} f="#4fd1c5" />
+          <B x={19} y={5} w={1} h={1} f="#4fd1c5" />
+        </>
+      );
     default:
       return null;
   }
 }
 
 function Back({ id }: { id: string }) {
-  if (id === "capa")
-    return <path d="M36 82 L84 82 L96 148 L24 148Z" fill="#dc2626" />;
+  const cape = (f: string) => (
+    <>
+      <B x={8} y={20} w={14} h={6} f={f} />
+      <B x={7} y={26} w={16} h={6} f={f} />
+      <B x={6} y={32} w={18} h={6} f={f} />
+    </>
+  );
+  if (id === "capa") return cape("#dc2626");
   if (id === "capa_cartografo")
     return (
-      <g>
-        <path d="M36 82 L84 82 L98 150 L22 150Z" fill="#5b21b6" />
-        <path d="M22 150 L98 150 L96 144 L24 144Z" fill="#f6c453" />
-        <text x="60" y="124" textAnchor="middle" fontSize="16" fill="#f6c453">★</text>
-      </g>
+      <>
+        {cape("#5b21b6")}
+        <B x={6} y={37} w={18} h={1} f="#f6c453" />
+        <B x={14} y={29} w={2} h={4} f="#f6c453" />
+        <B x={13} y={30} w={4} h={2} f="#f6c453" />
+      </>
     );
-  if (id === "mochila") return <rect x="78" y="86" width="22" height="34" rx="8" fill="#b45309" stroke="#78350f" strokeWidth="2" />;
+  if (id === "mochila") return <B x={21} y={20} w={6} h={9} f="#b45309" o n />;
   return null;
+}
+
+function Robot({ body }: { body: string }) {
+  return (
+    <>
+      <B x={14} y={3} w={2} h={4} f="#f6c453" />
+      <B x={13} y={0} w={4} h={3} f="#f6c453" o n className="edu-led" />
+      <B x={5} y={21} w={3} h={8} f={body} o />
+      <B x={22} y={21} w={3} h={8} f={body} o />
+      <B x={10} y={30} w={4} h={6} f="#475569" />
+      <B x={16} y={30} w={4} h={6} f="#475569" />
+      <B x={9} y={36} w={5} h={2} f="#334155" o />
+      <B x={16} y={36} w={5} h={2} f="#334155" o />
+      <B x={8} y={20} w={14} h={10} f={body} o />
+      <B x={8} y={28} w={14} h={2} f="#0003" />
+      <B x={11} y={23} w={8} h={4} f="#0f172a" />
+      <B x={12} y={24} w={2} h={2} f="#4fd1c5" />
+      <B x={16} y={24} w={2} h={2} f="#f6c453" />
+      <B x={7} y={7} w={16} h={12} f={body} o />
+      <B x={7} y={7} w={16} h={1} f="#ffffff44" />
+      <B x={9} y={10} w={12} h={6} f="#0f172a" n />
+      <B x={11} y={11} w={3} h={4} f="#67e8f9" className="edu-eye" />
+      <B x={16} y={11} w={3} h={4} f="#67e8f9" className="edu-eye" />
+      <B x={12} y={17} w={6} h={1} f="#0004" />
+    </>
+  );
+}
+
+function Human({ a, skin }: { a: Partial<Appearance>; skin: string }) {
+  const o = OUTFIT[a.cls ?? ""] ?? OUTFIT.heroi;
+  return (
+    <>
+      <B x={10} y={31} w={4} h={5} f="#334155" />
+      <B x={16} y={31} w={4} h={5} f="#334155" />
+      <B x={9} y={36} w={5} h={2} f="#1e293b" o />
+      <B x={16} y={36} w={5} h={2} f="#1e293b" o />
+      <B x={6} y={21} w={3} h={8} f={o.main} o />
+      <B x={21} y={21} w={3} h={8} f={o.main} o />
+      <B x={6} y={29} w={3} h={2} f={skin} />
+      <B x={21} y={29} w={3} h={2} f={skin} />
+      <B x={9} y={20} w={12} h={12} f={o.main} o />
+      <B x={9} y={28} w={12} h={2} f={o.trim} />
+      {a.cls === "heroi" && (
+        <>
+          <B x={14} y={22} w={2} h={4} f={o.trim} />
+          <B x={13} y={23} w={4} h={2} f={o.trim} />
+        </>
+      )}
+      {a.cls === "paladino" && (
+        <>
+          <B x={5} y={19} w={5} h={3} f="#cbd5e1" o />
+          <B x={20} y={19} w={5} h={3} f="#cbd5e1" o />
+          <B x={13} y={22} w={4} h={4} f="#f6c453" n />
+        </>
+      )}
+      {a.cls === "exploradora" && <B x={10} y={19} w={10} h={2} f="#dd6b20" o />}
+      <B x={8} y={7} w={14} h={13} f={skin} o />
+      <B x={11} y={12} w={2} h={3} f="#1c1c26" className="edu-eye" />
+      <B x={17} y={12} w={2} h={3} f="#1c1c26" className="edu-eye" />
+      <B x={9} y={15} w={2} h={1} f="#ff7f6e88" />
+      <B x={19} y={15} w={2} h={1} f="#ff7f6e88" />
+      <B x={12} y={16} w={1} h={1} f="#7c2d12" />
+      <B x={13} y={17} w={4} h={1} f="#7c2d12" />
+      <B x={17} y={16} w={1} h={1} f="#7c2d12" />
+      <Hair style={a.hair_style ?? "curto"} color={hairHex(a.hair_color ?? "preto")} />
+      {a.cls === "mago" && (
+        <>
+          <B x={14} y={-5} w={2} h={2} f="#7c3aed" />
+          <B x={12} y={-3} w={6} h={3} f="#7c3aed" />
+          <B x={10} y={0} w={10} h={3} f="#7c3aed" />
+          <B x={8} y={3} w={14} h={3} f="#7c3aed" />
+          <B x={14} y={1} w={2} h={2} f="#fcd34d" />
+          <B x={5} y={6} w={20} h={2} f="#5b21b6" o />
+        </>
+      )}
+      {a.cls === "heroi" && <B x={8} y={10} w={14} h={2} f="#dc2626" />}
+      {a.cls === "paladino" && (
+        <>
+          <B x={7} y={4} w={16} h={6} f="#cbd5e1" o n />
+          <B x={7} y={8} w={16} h={1} f="#64748b" />
+          <B x={14} y={2} w={2} h={2} f="#f6c453" />
+        </>
+      )}
+      {a.cls === "exploradora" && <B x={8} y={10} w={14} h={2} f="#dd6b20" />}
+    </>
+  );
 }
 
 interface Props {
@@ -112,10 +253,6 @@ export default function Edu({ appearance, size = 120, animate = true, label }: P
   const a: Partial<Appearance> = appearance && appearance.cls ? appearance : { cls: "robo", color: "turquesa", accessories: [] };
   const acc = a.accessories ?? [];
   const robot = a.cls === "robo";
-  const top = robot ? 28 : 30;
-  const o = OUTFIT[a.cls ?? ""] ?? OUTFIT.heroi;
-  const skin = skinHex(a.color ?? "");
-  const body = robotHex(a.color ?? "");
   const front = acc.filter((x) => ["oculos", "chapeu", "coroa"].includes(x));
   const back = acc.filter((x) => ["capa", "capa_cartografo", "mochila"].includes(x));
   return (
@@ -124,71 +261,15 @@ export default function Edu({ appearance, size = 120, animate = true, label }: P
       viewBox="0 0 120 160"
       width={size}
       height={(size * 160) / 120}
+      shapeRendering="crispEdges"
       {...(label === "" ? { "aria-hidden": true } : { role: "img", "aria-label": label ?? "Edu" })}
     >
       {back.map((id) => (
         <Back key={id} id={id} />
       ))}
-      {robot ? (
-        <g>
-          <line x1="60" y1="28" x2="60" y2="14" stroke="#f6c453" strokeWidth="3" />
-          <circle cx="60" cy="11" r="5" fill="#f6c453" className="edu-led" />
-          <rect x="22" y="86" width="12" height="32" rx="6" fill={body} stroke="#0003" />
-          <rect x="86" y="86" width="12" height="32" rx="6" fill={body} stroke="#0003" />
-          <rect x="38" y="118" width="14" height="30" rx="5" fill="#475569" />
-          <rect x="68" y="118" width="14" height="30" rx="5" fill="#475569" />
-          <rect x="34" y="80" width="52" height="42" rx="10" fill={body} stroke="#0003" strokeWidth="2" />
-          <rect x="48" y="92" width="24" height="14" rx="4" fill="#0f172a" />
-          <circle cx="54" cy="99" r="3" fill="#4fd1c5" />
-          <circle cx="66" cy="99" r="3" fill="#f6c453" />
-          <rect x="30" y="28" width="60" height="48" rx="12" fill={body} stroke="#0003" strokeWidth="2" />
-          <rect x="38" y="40" width="44" height="22" rx="8" fill="#0f172a" />
-          <rect x="44" y="45" width="10" height="12" rx="4" fill="#67e8f9" className="edu-eye" />
-          <rect x="66" y="45" width="10" height="12" rx="4" fill="#67e8f9" className="edu-eye" />
-          <rect x="50" y="66" width="20" height="4" rx="2" fill="#0003" />
-        </g>
-      ) : (
-        <g>
-          <rect x="40" y="120" width="15" height="28" rx="6" fill="#334155" />
-          <rect x="65" y="120" width="15" height="28" rx="6" fill="#334155" />
-          <rect x="38" y="82" width="44" height="46" rx="12" fill={o.main} stroke="#0003" strokeWidth="2" />
-          <rect x="38" y="112" width="44" height="6" fill={o.trim} />
-          <rect x="24" y="86" width="14" height="30" rx="7" fill={o.main} />
-          <rect x="82" y="86" width="14" height="30" rx="7" fill={o.main} />
-          <circle cx="31" cy="118" r="7" fill={skin} />
-          <circle cx="89" cy="118" r="7" fill={skin} />
-          {a.cls === "paladino" && (
-            <g>
-              <circle cx="36" cy="88" r="10" fill="#cbd5e1" stroke="#64748b" strokeWidth="2" />
-              <circle cx="84" cy="88" r="10" fill="#cbd5e1" stroke="#64748b" strokeWidth="2" />
-              <path d="M60 86 l9 6 v12 l-9 8 l-9 -8 v-12z" fill="#f6c453" />
-            </g>
-          )}
-          {a.cls === "exploradora" && <rect x="44" y="78" width="32" height="8" rx="4" fill="#dd6b20" />}
-          {a.cls === "heroi" && <path d="M60 90 l6 10 l-6 10 l-6 -10z" fill={o.trim} />}
-          <circle cx="60" cy="56" r="26" fill={skin} stroke="#0002" strokeWidth="2" />
-          <circle cx="50" cy="56" r="3.4" fill="#1c1c26" className="edu-eye" />
-          <circle cx="70" cy="56" r="3.4" fill="#1c1c26" className="edu-eye" />
-          <path d="M51 67 Q60 75 69 67" fill="none" stroke="#7c2d12" strokeWidth="2.5" strokeLinecap="round" />
-          <circle cx="45" cy="64" r="3" fill="#ff7f6e55" />
-          <circle cx="75" cy="64" r="3" fill="#ff7f6e55" />
-          <Hair style={a.hair_style ?? "curto"} color={hairHex(a.hair_color ?? "preto")} top={top} />
-          {a.cls === "mago" && (
-            <g>
-              <ellipse cx="60" cy={top + 4} rx="36" ry="7" fill="#5b21b6" />
-              <path d={`M40 ${top + 4} L60 ${top - 44} L80 ${top + 4}Z`} fill="#7c3aed" />
-              <text x="60" y={top - 10} textAnchor="middle" fontSize="14" fill="#fcd34d">★</text>
-            </g>
-          )}
-          {a.cls === "heroi" && <rect x="34" y={top + 14} width="52" height="7" rx="3" fill="#dc2626" />}
-          {a.cls === "paladino" && (
-            <path d={`M36 ${top + 18} Q36 ${top - 6} 60 ${top - 6} Q84 ${top - 6} 84 ${top + 18} L84 ${top + 6} Q60 ${top - 4} 36 ${top + 6}Z`} fill="#cbd5e1" stroke="#64748b" strokeWidth="2" />
-          )}
-          {a.cls === "exploradora" && <rect x="36" y={top + 14} width="48" height="6" rx="3" fill="#dd6b20" />}
-        </g>
-      )}
+      {robot ? <Robot body={robotHex(a.color ?? "")} /> : <Human a={a} skin={skinHex(a.color ?? "")} />}
       {front.map((id) => (
-        <Accessory key={id} id={id} robot={robot} top={top} />
+        <Accessory key={id} id={id} robot={robot} />
       ))}
     </svg>
   );

@@ -37,7 +37,12 @@ export default function Onboarding() {
   useEffect(() => {
     void api.catalog().then(setCat);
   }, []);
-  if (!cat) return <main className="page center">Carregando…</main>;
+  if (!cat)
+    return (
+      <main className="page center">
+        <p className="notice" role="status">Carregando o catálogo…</p>
+      </main>
+    );
 
   const robot = app.cls === "robo";
   const setClass = (cls: string) => {
@@ -77,9 +82,20 @@ export default function Onboarding() {
 
   return (
     <main className="page stack">
+      <div className="row">
+        <span className="chip teal">
+          Etapa {step + 1} de {STEPS.length}
+        </span>
+        <span className="hint">{STEPS[step]}</span>
+      </div>
       <div className="steps" role="list" aria-label="Etapas">
         {STEPS.map((s, i) => (
-          <span key={s} role="listitem" className={i < step ? "done" : i === step ? "cur" : ""} title={s} />
+          <span key={s} role="listitem" className={i < step ? "done" : i === step ? "cur" : ""} title={s}>
+            <span className="sr-only">
+              {s}
+              {i < step ? " (feita)" : i === step ? " (atual)" : ""}
+            </span>
+          </span>
         ))}
       </div>
       <h2>
@@ -106,8 +122,8 @@ export default function Onboarding() {
 
       {step === 0 && (
         <div className="stack">
-          <section aria-labelledby="h-class">
-            <h3 id="h-class">Quem é o Edu?</h3>
+          <section className="card" aria-labelledby="h-class">
+            <h3 id="h-class" className="card-title">Quem é o Edu?</h3>
             <p className="hint">Ele começa como robô, mas pode virar quem você quiser.</p>
             <div className="grid auto">
               {Object.entries(cat.classes).map(([id, name]) => (
@@ -118,8 +134,8 @@ export default function Onboarding() {
               ))}
             </div>
           </section>
-          <section aria-labelledby="h-color">
-            <h3 id="h-color">{robot ? "Cor da armadura" : "Tom de pele"}</h3>
+          <section className="card" aria-labelledby="h-color">
+            <h3 id="h-color" className="card-title">{robot ? "Cor da armadura" : "Tom de pele"}</h3>
             <div className="row">
               {(robot ? cat.robot_colors : skins).map((c) => (
                 <button
@@ -137,8 +153,8 @@ export default function Onboarding() {
             </div>
           </section>
           {!robot && (
-            <section aria-labelledby="h-hair">
-              <h3 id="h-hair">Cabelo</h3>
+            <section className="card" aria-labelledby="h-hair">
+              <h3 id="h-hair" className="card-title">Cabelo</h3>
               <div className="row">
                 {cat.hair_styles.map((h) => (
                   <button key={h} className="choice" aria-pressed={app.hair_style === h} onClick={() => setApp({ ...app, hair_style: h })}>
@@ -160,10 +176,13 @@ export default function Onboarding() {
               </div>
             </section>
           )}
-          <section aria-labelledby="h-acc">
-            <h3 id="h-acc">
-              Acessórios <span className="hint">(até {cat.max_accessories})</span>
-            </h3>
+          <section className="card" aria-labelledby="h-acc">
+            <div className="card-head">
+              <h3 id="h-acc" className="card-title">Acessórios</h3>
+              <span className="chip">
+                {app.accessories.length}/{cat.max_accessories}
+              </span>
+            </div>
             <div className="grid auto">
               {Object.entries(cat.accessories).map(([id, name]) => {
                 const locked = cat.locked_accessories.includes(id) && !unlocked.includes(id);
@@ -182,9 +201,15 @@ export default function Onboarding() {
       )}
 
       {step === 1 && (
-        <section className="stack">
+        <section className="card stack" aria-labelledby="h-tools">
+          <div className="card-head">
+            <h3 id="h-tools" className="card-title">Armas do saber</h3>
+            <span className={`chip${tools.length === cat.tools_to_pick ? " teal" : ""}`} aria-live="polite">
+              {tools.length}/{cat.tools_to_pick} escolhidas
+            </span>
+          </div>
           <p>
-            Escolha <strong>{cat.tools_to_pick} ferramentas</strong>. Cada uma pode ser usada uma vez por missão, durante uma pergunta. ({tools.length}/{cat.tools_to_pick})
+            Escolha <strong>{cat.tools_to_pick} ferramentas</strong>. Cada uma pode ser usada uma vez por missão, durante uma pergunta.
           </p>
           <div className="grid cols-2">
             {Object.entries(cat.tools).map(([id, desc]) => (
@@ -220,7 +245,8 @@ export default function Onboarding() {
       )}
 
       {step === 4 && (
-        <section className="card stack">
+        <section className="card stack" aria-labelledby="h-tutores">
+          <h3 id="h-tutores" className="card-title">Recado dos tutores</h3>
           <p>
             Seu Edu está pronto e já entrou no mundo encantado. Agora o jogo depende de vocês: os tutores <strong>Hernandes</strong> e <strong>Emily</strong> vão explicar o
             conteúdo da aula.
@@ -228,7 +254,7 @@ export default function Onboarding() {
           <p>
             Prestem atenção em cada palavra. No final, o grupo precisa <strong>descobrir a frase secreta</strong> que abre a Era 1.
           </p>
-          <p className="hint">Quando os tutores abrirem a sala, você recebe um código de 6 letras.</p>
+          <p className="notice">ⓘ Quando os tutores abrirem a sala, você recebe um código de 6 letras.</p>
         </section>
       )}
 

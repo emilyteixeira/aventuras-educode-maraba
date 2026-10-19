@@ -1,4 +1,4 @@
-import type { ReactElement } from "react";
+import { lazy, Suspense, type ReactElement } from "react";
 import { Link, Navigate, Route, Routes, useLocation } from "react-router-dom";
 import { SessionProvider, useSession } from "./session";
 import Auth from "./pages/Auth";
@@ -7,6 +7,9 @@ import Landing from "./pages/Landing";
 import Onboarding from "./pages/Onboarding";
 import Room from "./pages/Room";
 import TutorHome from "./pages/TutorHome";
+
+// Vitrine do design system: só existe em desenvolvimento (fora do build de produção).
+const Design = import.meta.env.DEV ? lazy(() => import("./pages/Design")) : null;
 
 function TopBar() {
   const { me, logout, music, toggleMusic, calm, setCalm, sound, setSound } = useSession();
@@ -64,6 +67,7 @@ export default function App() {
             <Route path="/jogar" element={<Guard><Join /></Guard>} />
             <Route path="/tutor" element={<Guard tutor><TutorHome /></Guard>} />
             <Route path="/sala/:code" element={<Guard><Room /></Guard>} />
+            {Design && <Route path="/design" element={<Suspense fallback={null}><Design /></Suspense>} />}
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </div>

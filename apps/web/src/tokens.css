@@ -1,0 +1,70 @@
+/* Design system "Aventuras" — tokens (v0.3, 19/10/2026).
+   Inspiração: estética pixel do EvoluAI (raio 0, sombra dura, bisel), com a paleta própria
+   do Aventuras (turquesa, ouro, coral). Documentação: docs/DESIGN-SYSTEM.md · vitrine: /design (dev).
+   Contraste medido contra --bg e --surface; nenhum texto usa cor abaixo de 4,5:1. */
+:root {
+  /* Base (fundo noturno) */
+  --bg: #0c0b10;
+  --bg-2: #100f17;
+  --surface: #141320;
+  --surface-2: #1b1929;
+  --surface-3: #262338;
+  --line: #2a2740;
+  --line-2: #3b3757;
+  --line-3: #514c73;
+  --outline: #07060b; /* contorno do pixel art */
+
+  /* Texto */
+  --ink: #f1e9d6;   /* 15,2:1 em --surface */
+  --ink-2: #c8bfa9; /* 10,0:1 */
+  --muted: #8b84a3; /*  5,2:1 — menor cor permitida para texto */
+  --ink-dark: #12101c; /* texto sobre ouro/turquesa/coral */
+
+  /* Destaques (identidade do Aventuras) */
+  --teal: #4fd1c5;   --teal-hi: #8ff0e6; --teal-dk: #2b8b82;
+  --gold: #ffd23f;   --gold-hi: #ffe98f; --gold-dk: #b8901a;
+  --coral: #ff7f9e;  --coral-hi: #ffb3c6; --coral-dk: #c4506e;
+  --violet: #8b5cf6;
+
+  /* Estados (sempre com ícone + texto, nunca só cor) */
+  --ok: #64d98b;     --ok-bg: #12301f;
+  --danger: #ff6159; --danger-bg: #3a1418;
+  --info: #5b9bff;   --info-bg: #13213d;
+
+  /* Alternativas do quiz (contraste já validado no axe; não clarear) */
+  --opt-0: #d6336c; --opt-1: #1864ab; --opt-2: #e8a317; --opt-3: #2b7a3b; --opt-4: #7048e8; --opt-5: #0b7285;
+
+  /* Tipografia */
+  /* Pixel só em títulos, logotipo, números e código da sala: sempre peso 400, a partir de 20px
+     (no 700 da Pixelify o "C" vira "O" em qualquer tamanho). Botões, chips e rótulos usam --font-body. */
+  --font-pixel: "Pixel Digits", "Pixelify Sans", "Ubuntu Mono", ui-monospace, monospace;
+  --font-body: "Atkinson Hyperlegible", "Ubuntu", "Segoe UI", system-ui, sans-serif; /* perguntas e textos */
+  --font-mono: "Ubuntu Mono", ui-monospace, Menlo, monospace;
+  --fs-xs: .875rem; /* só fonte de corpo */
+  --fs-sm: 1rem;
+  --fs-md: 1.125rem;
+  --fs-lg: 1.375rem;
+  --fs-xl: clamp(1.6rem, 4.5vw, 2.2rem);
+  --fs-2xl: clamp(2.2rem, 7vw, 3.8rem);
+
+  /* Espaço (grade de 4px, como os "pixels" do Edu) */
+  --s-1: 4px; --s-2: 8px; --s-3: 12px; --s-4: 16px; --s-5: 20px; --s-6: 24px; --s-8: 32px; --s-12: 48px;
+
+  /* Forma: sem cantos arredondados; profundidade por sombra dura e bisel */
+  --radius: 0;
+  --bw: 2px;
+  --shadow: 4px 4px 0 0 #000a;
+  --shadow-sm: 2px 2px 0 0 #000a;
+  --bevel: inset -3px -3px 0 0 #0005, inset 3px 3px 0 0 #fff3;
+
+  /* Movimento */
+  --ease: cubic-bezier(.2, .8, .2, 1);
+  --dur-fast: 80ms;
+  --dur: 200ms;
+
+  /* Alvos de toque */
+  --tap: 48px;
+  --tap-min: 44px;
+
+  color-scheme: dark;
+}

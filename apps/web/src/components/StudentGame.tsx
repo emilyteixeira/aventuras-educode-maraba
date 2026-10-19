@@ -29,17 +29,17 @@ export default function StudentGame({ s, send, receivedAt }: Props) {
       <div className="hud">
         <span className="chip">Sala {s.code}</span>
         {s.mission && (
-          <span className="chip">
+          <span className="chip teal">
             Missão {s.mission.no}/{s.era.missions}
-            {s.mission.boss ? " · Chefão ×1,5" : ""}
           </span>
         )}
+        {s.mission?.boss && <span className="chip mult">Chefão ×1,5</span>}
         {group && <span className="chip">Grupo {group.name}</span>}
         <span className="chip gold" aria-label={`${me.points} pontos, posição ${me.rank}`}>
           {me.points} pts · {me.rank}º
         </span>
       </div>
-      {s.paused && <div className="success" role="status">⏸ Jogo pausado pelos tutores.</div>}
+      {s.paused && <div className="notice" role="status">⏸ Jogo pausado pelos tutores.</div>}
       {s.phase === "lobby" && <Lobby s={s} />}
       {s.phase === "intro" && <Intro s={s} />}
       {(s.phase === "question" || s.phase === "reveal") && s.question && <QuestionBlock key={s.question.id} s={s} send={send} receivedAt={receivedAt} />}
@@ -53,26 +53,35 @@ function Lobby({ s }: { s: GameState }) {
   const me = s.me!;
   const group = s.groups.find((g) => g.no === me.group);
   return (
-    <section className="card center stack">
-      <Edu appearance={me.appearance} size={150} label="O seu Edu" />
-      <h2>Você entrou, {me.nickname}!</h2>
-      <p>Aguardem os tutores. {s.connected} aventureiro(s) na sala.</p>
-      {group ? (
-        <div>
-          <h3>Seu grupo: {group.name}</h3>
-          <div className="row" style={{ justifyContent: "center" }}>
-            {group.members.map((m) => (
-              <div key={m.nickname}>
-                <Edu appearance={m.appearance} size={70} label="" />
-                <div>{m.nickname}</div>
-              </div>
-            ))}
-          </div>
-        </div>
-      ) : (
-        <p className="hint">O grupo de 3 será sorteado pelos tutores.</p>
-      )}
-      <p className="hint">Dica: ouçam atentamente Hernandes e Emily. A frase do selo está escondida nas explicações.</p>
+    <section className="stack">
+      <div className="card center stack">
+        <Edu appearance={me.appearance} size={150} label="O seu Edu" />
+        <h2>Você entrou, {me.nickname}!</h2>
+        <p>
+          <span className="chip teal">{s.connected} na sala</span> <span className="hint">Aguardem os tutores.</span>
+        </p>
+      </div>
+      <div className="card center">
+        {group ? (
+          <>
+            <h3 className="card-title">Seu grupo: {group.name}</h3>
+            <div className="members">
+              {group.members.map((m) => (
+                <div key={m.nickname}>
+                  <Edu appearance={m.appearance} size={70} label="" />
+                  <div>{m.nickname}</div>
+                </div>
+              ))}
+            </div>
+          </>
+        ) : (
+          <>
+            <h3 className="card-title">Seu grupo</h3>
+            <p className="hint">O grupo de 3 será sorteado pelos tutores.</p>
+          </>
+        )}
+      </div>
+      <p className="notice">ⓘ Dica: ouçam atentamente Hernandes e Emily. A frase do selo está escondida nas explicações.</p>
     </section>
   );
 }
@@ -81,14 +90,15 @@ function Intro({ s }: { s: GameState }) {
   const m = s.mission!;
   return (
     <section className="card mission-banner stack">
-      <span className="chip">Missão {m.no} de {s.era.missions}</span>
-      <div className="big">{m.name}</div>
-      <p>
+      <p className="row" style={{ justifyContent: "center" }}>
+        <span className="chip teal">Missão {m.no} de {s.era.missions}</span>
         <span className="chip gold">{m.pillar}</span>
+        {m.boss && <span className="chip mult">Chefão ×1,5</span>}
       </p>
-      <p>{m.intro}</p>
-      <p className="hint">Os tutores vão explicar o tema. Anotem as palavras importantes: elas voltam no final.</p>
+      <h2 className="big">{m.name}</h2>
       <Edu appearance={s.me!.appearance} size={110} label="" />
+      <p>{m.intro}</p>
+      <p className="notice">ⓘ Os tutores vão explicar o tema. Anotem as palavras importantes: elas voltam no final.</p>
     </section>
   );
 }
@@ -102,19 +112,28 @@ function QuestionBlock({ s, send, receivedAt }: Props) {
     <section className="stack">
       {!reveal && (
         <div className="hud">
-          <span>
-            Pergunta {s.qindex + 1}/{s.mission!.questions}
-            {(s.mult_now ?? 1) > 1 && <span className="mult"> ×{s.mult_now}</span>}
+          <span className="row">
+            <span className="chip">
+              Pergunta {s.qindex + 1}/{s.mission!.questions}
+            </span>
+            {(s.mult_now ?? 1) > 1 && <span className="chip mult">×{s.mult_now}</span>}
           </span>
-          <span aria-live="off">{Math.ceil(remaining / 1000)} s</span>
+          <span className="chip" aria-live="off">
+            ⏱ {Math.ceil(remaining / 1000)} s
+          </span>
         </div>
       )}
       {!reveal && <TimerBar remaining={remaining} total={s.total_ms ?? q.seconds * 1000} />}
       <p className="qprompt" id="qprompt">{q.prompt}</p>
       {!reveal && <Tools s={s} send={send} />}
       {q.type === "mc" ? <Options s={s} q={q} send={send} /> : <OrderQ s={s} q={q} send={send} />}
+      {!reveal && !me.answered && q.type === "mc" && (
+        <p className="hint desk-only">
+          Atalho: teclas <kbd>1</kbd> a <kbd>{q.options?.length ?? 4}</kbd> escolhem a alternativa.
+        </p>
+      )}
       {!reveal && me.answered && (
-        <div className="success" role="status">
+        <div className="notice" role="status">
           Resposta enviada! Aguardando os outros… ({s.answered}/{s.connected})
         </div>
       )}
@@ -267,13 +286,16 @@ function Reveal({ s }: { s: GameState }) {
   return (
     <div className="stack">
       <div className={r?.correct ? "success" : "error"} role="status">
-        {r?.answered ? (r.correct ? `Acertou! +${r.points} pontos` : "Não foi dessa vez. 0 pontos") : "Sem resposta desta vez."}
+        {r?.answered ? (r.correct ? `✔ Acertou! +${r.points} pontos` : "✖ Não foi dessa vez. 0 pontos") : "– Sem resposta desta vez."}
       </div>
       <div className="card">
-        <strong>Por quê?</strong> {s.reveal?.explanation}
+        <h3 className="card-title">Por quê?</h3>
+        <p style={{ margin: 0 }}>{s.reveal?.explanation}</p>
       </div>
-      <h3>Ranking</h3>
-      <Leaderboard rows={s.leaderboard} meName={me.nickname} />
+      <div className="card">
+        <h3 className="card-title">Ranking</h3>
+        <Leaderboard rows={s.leaderboard} meName={me.nickname} />
+      </div>
       <p className="hint">Próxima pergunta em instantes…</p>
     </div>
   );
@@ -288,10 +310,15 @@ function PodiumView({ s }: { s: GameState }) {
       <Podium label="Pódio individual" rows={p.individuals.map((x) => ({ name: x.nickname, points: x.points, appearance: x.appearance }))} />
       <h3>Grupos</h3>
       <Podium label="Pódio dos grupos" rows={p.groups.map((g) => ({ name: g.name, sub: g.members.map((m) => m.nickname).join(", "), points: g.points }))} />
-      <div className="card">
-        Você fez <strong>{me.mission_points ?? 0}</strong> pontos e ganhou <strong className="mult">+{me.xp_gain ?? 0} XP</strong> · nível {me.level}
+      <div className="card raised">
+        <h3 className="card-title">Sua missão</h3>
+        <p className="row" style={{ justifyContent: "center", margin: 0 }}>
+          <span className="chip gold">{me.mission_points ?? 0} pts</span>
+          <span className="chip mult">+{me.xp_gain ?? 0} XP</span>
+          <span className="chip teal">Nível {me.level}</span>
+        </p>
       </div>
-      <p className="hint">Hora de ouvir os tutores. A próxima missão começa quando eles liberarem.</p>
+      <p className="notice">ⓘ Hora de ouvir os tutores. A próxima missão começa quando eles liberarem.</p>
     </section>
   );
 }
@@ -315,8 +342,10 @@ function Unlock({ s, send }: { s: GameState; send: Send }) {
       <section className="stack">
         <h2>Fim da Era 1!</h2>
         {done && me.unlock?.reward && <Reward r={me.unlock.reward} />}
-        <h3>Ranking final</h3>
-        <Leaderboard rows={s.leaderboard} meName={me.nickname} limit={10} />
+        <div className="card">
+          <h3 className="card-title">Ranking final</h3>
+          <Leaderboard rows={s.leaderboard} meName={me.nickname} limit={10} />
+        </div>
         <h3>Grupos</h3>
         <Podium label="Pódio final dos grupos" rows={[...s.groups].sort((a, b) => b.points - a.points).slice(0, 3).map((g) => ({ name: g.name, sub: g.members.map((m) => m.nickname).join(", "), points: g.points }))} />
         <p className="center"><Link className="btn" to="/jogar">Voltar ao início</Link></p>
@@ -333,7 +362,8 @@ function Unlock({ s, send }: { s: GameState; send: Send }) {
           <p>
             Grupo <strong>{group?.name}</strong>: juntem o que os tutores explicaram e completem a frase. Discutam entre vocês! Qualquer um do grupo pode tentar.
           </p>
-          <form className="card stack" onSubmit={submit}>
+          <form className="card stack" onSubmit={submit} aria-labelledby="h-phrase">
+            <h3 id="h-phrase" className="card-title">Frase secreta</h3>
             <p className="phrase">{u.template}</p>
             <div className="blanks">
               {u.blanks.map((label, i) => (
@@ -343,31 +373,36 @@ function Unlock({ s, send }: { s: GameState; send: Send }) {
                 </div>
               ))}
             </div>
-            {fb && !fb.ok && <div className="error" role="status">{fb.by} tentou: {fb.correct} de {fb.total} lacunas certas. Continuem!</div>}
+            {fb && !fb.ok && <div className="error" role="status">✖ {fb.by} tentou: {fb.correct} de {fb.total} lacunas certas. Continuem!</div>}
             <button className="btn big" disabled={words.some((w) => !w.trim())}>Decifrar o selo</button>
           </form>
         </>
       )}
-      <h3>Grupos</h3>
-      <ul className="lb">
-        {s.groups.map((g) => (
-          <li key={g.no}>
-            <strong>{g.name}</strong> <span className="hint">{g.members.map((m) => m.nickname).join(", ")}</span>
-            <span className="pts">{g.unlocked ? "🔓 selo aberto" : "🔒"}</span>
-          </li>
-        ))}
-      </ul>
+      <div className="card">
+        <h3 className="card-title">Grupos</h3>
+        <ul className="lb">
+          {s.groups.map((g) => (
+            <li key={g.no} className={g.no === me.group ? "me" : ""}>
+              <strong>{g.name}</strong> <span className="hint">{g.members.map((m) => m.nickname).join(", ")}</span>
+              <span className="pts">{g.unlocked ? "🔓 selo aberto" : "🔒 fechado"}</span>
+            </li>
+          ))}
+        </ul>
+      </div>
     </section>
   );
 }
 
 function Reward({ r }: { r: { title: string; text: string; item: string } }) {
   return (
-    <div className="card badge-new stack center" role="status">
+    <div className="card raised badge-new stack center" role="status">
+      <p>
+        <span className="chip gold">Selo aberto</span>
+      </p>
       <div style={{ fontSize: "3rem" }} aria-hidden="true">🗝️</div>
       <h2>{r.title}</h2>
       <p>{r.text}</p>
-      <p className="hint">Sua Capa do Cartógrafo foi liberada! Equipe em “Editar meu Edu”.</p>
+      <p className="success">✔ Sua Capa do Cartógrafo foi liberada! Equipe em “Editar meu Edu”.</p>
       <Link className="btn alt" to="/onboarding">Editar meu Edu</Link>
     </div>
   );

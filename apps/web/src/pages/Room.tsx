@@ -11,16 +11,20 @@ export default function Room() {
   if (fatal === "onboarding") return <Navigate to="/onboarding" replace />;
   if (fatal === "notfound" || fatal === "forbidden")
     return (
-      <main className="page center stack">
-        <h2>{fatal === "notfound" ? "Sala não encontrada" : "Acesso negado"}</h2>
-        <p>Confira o código com os tutores.</p>
-        <Link className="btn" to="/jogar">Voltar</Link>
+      <main className="page center stack" style={{ maxWidth: 560 }}>
+        <div className="card stack">
+          <h2>{fatal === "notfound" ? "Sala não encontrada" : "Acesso negado"}</h2>
+          <p className="error">✖ Confira o código com os tutores.</p>
+          <p>
+            <Link className="btn" to="/jogar">Voltar</Link>
+          </p>
+        </div>
       </main>
     );
   if (!state)
     return (
       <main className="page center">
-        <p>{online ? "Entrando na sala…" : "Conectando…"}</p>
+        <p className="notice" role="status">{online ? "Entrando na sala…" : "Conectando…"}</p>
       </main>
     );
   return (
