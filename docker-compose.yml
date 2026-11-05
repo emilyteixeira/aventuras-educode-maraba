@@ -24,7 +24,6 @@ services:
         condition: service_healthy
     environment:
       AVENTURAS_DATABASE_URL: postgresql+asyncpg://aventuras:${POSTGRES_PASSWORD}@db:5432/aventuras
-      AVENTURAS_CLASS_CODE: ${AVENTURAS_CLASS_CODE:?defina AVENTURAS_CLASS_CODE no .env}
       AVENTURAS_TUTOR_CODE: ${AVENTURAS_TUTOR_CODE:?defina AVENTURAS_TUTOR_CODE no .env}
       AVENTURAS_COOKIE_SECURE: ${AVENTURAS_COOKIE_SECURE:-false}
       AVENTURAS_UNLOCK_WORDS: ${AVENTURAS_UNLOCK_WORDS:-}

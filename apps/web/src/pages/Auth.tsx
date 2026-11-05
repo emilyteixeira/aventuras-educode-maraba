@@ -38,27 +38,28 @@ export default function Auth() {
   return (
     <main className="page" style={{ maxWidth: 520 }}>
       <div className="card stack">
-        <h2>{mode === "login" ? "Entrar" : "Criar conta"}</h2>
-        <div className="row" role="tablist" aria-label="Entrar ou criar conta">
-          <button className="choice" role="tab" aria-selected={mode === "login"} aria-pressed={mode === "login"} onClick={() => setMode("login")} type="button">
+        <h1>{mode === "login" ? "Acesso dos tutores" : "Criar conta de tutor"}</h1>
+        <p className="hint">Emily, Hernandes e Felipe · Era 1: Pensamento Computacional</p>
+        <div className="row" role="group" aria-label="Entrar ou criar conta de tutor">
+          <button className="choice" aria-pressed={mode === "login"} onClick={() => setMode("login")} type="button">
             Já tenho conta
           </button>
-          <button className="choice" role="tab" aria-selected={mode === "register"} aria-pressed={mode === "register"} onClick={() => setMode("register")} type="button">
-            Criar conta
+          <button className="choice" aria-pressed={mode === "register"} onClick={() => setMode("register")} type="button">
+            Tenho convite de tutor
           </button>
         </div>
         <form className="stack" onSubmit={submit}>
           {mode === "register" && (
             <div>
-              <label htmlFor="nick">Apelido de aventureiro</label>
+              <label htmlFor="nick">Nome do tutor</label>
               <input id="nick" value={nickname} onChange={(e) => setNickname(e.target.value)} maxLength={16} autoComplete="nickname" required />
-              <p className="hint">Esse nome aparece no ranking. Não use seu nome completo.</p>
+              <p className="hint">Como você quer ser chamado na aula, por exemplo, Felipe.</p>
             </div>
           )}
           <div>
-            <label htmlFor="email">E-mail (Gmail)</label>
+            <label htmlFor="email">E-mail do tutor</label>
             <input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} autoComplete="email" required />
-            {mode === "register" && <p className="hint">Seu e-mail nunca aparece para os colegas.</p>}
+            {mode === "register" && <p className="hint">Seu e-mail não aparece aos alunos.</p>}
           </div>
           <div>
             <label htmlFor="pw">Senha</label>
@@ -75,9 +76,9 @@ export default function Auth() {
           </div>
           {mode === "register" && (
             <div>
-              <label htmlFor="code">Código da turma</label>
-              <input id="code" value={code} onChange={(e) => setCode(e.target.value)} autoCapitalize="characters" required />
-              <p className="hint">Os tutores (Hernandes e Emily) dão o código na aula.</p>
+              <label htmlFor="code">Convite secreto de tutor</label>
+              <input id="code" type="password" value={code} onChange={(e) => setCode(e.target.value)} autoComplete="off" required />
+              <p className="hint">Solicite o convite à Emily por canal privado. Não é o PIN dos alunos.</p>
             </div>
           )}
           {error && (

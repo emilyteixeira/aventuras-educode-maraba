@@ -7,12 +7,13 @@ from urllib.parse import urlparse
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
+from sqlalchemy import select
 
 from . import db
 from .config import get_settings
 from .deps import user_from_token
 from .game.engine import hub
-from .models import Character
+from .models import Character, GameSession, SessionPlayer
 from .routers import auth, me, sessions
 
 # Códigos de fechamento do WebSocket entendidos pelo front
@@ -56,8 +57,20 @@ async def ws_session(ws: WebSocket, code: str):
     async with db.session_maker()() as session:
         user = await user_from_token(session, ws.cookies.get(s.cookie_name))
         ch = await session.get(Character, user.id) if user else None
+        gs = (await session.execute(
+            select(GameSession).where(GameSession.code == code.upper())
+        )).scalar_one_or_none()
+        member = (await session.execute(
+            select(SessionPlayer.id).where(
+                SessionPlayer.session_id == gs.id, SessionPlayer.user_id == user.id
+            )
+        )).first() if user and gs and user.role == "student" else None
     if user is None:
         return await ws.close(WS_UNAUTH)
+    if gs is None or gs.status != "open":
+        return await ws.close(WS_NOT_FOUND)
+    if user.role == "student" and member is None:
+        return await ws.close(WS_FORBIDDEN)
     appearance, tools = (ch.appearance, ch.tools) if ch else ({}, [])
     if user.role == "student" and not (appearance.get("cls") and len(tools) == 2):
         return await ws.close(WS_ONBOARDING)
@@ -69,6 +82,11 @@ async def ws_session(ws: WebSocket, code: str):
     try:
         while True:
             raw = await ws.receive_text()
+            async with db.session_maker()() as session:
+                active = await user_from_token(session, ws.cookies.get(s.cookie_name))
+            if active is None:
+                await ws.close(WS_UNAUTH)
+                break
             if len(raw) > s.ws_max_message_bytes:
                 continue
             try:

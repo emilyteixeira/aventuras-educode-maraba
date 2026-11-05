@@ -44,3 +44,32 @@ class CharacterIn(BaseModel):
     tools: list[str]
     scenario: str
     world: str
+
+
+class StudentJoinIn(BaseModel):
+    code: str = Field(min_length=6, max_length=6)
+    nickname: str | None = Field(default=None, max_length=16)
+    recovery_code: str | None = Field(default=None, max_length=32)
+
+    @field_validator("code")
+    @classmethod
+    def _code(cls, v: str) -> str:
+        v = v.strip().upper()
+        if not re.fullmatch(r"[A-HJKMNP-Z2-9]{6}", v):
+            raise ValueError("PIN: informe os 6 caracteres da sala.")
+        return v
+
+    @field_validator("nickname")
+    @classmethod
+    def _nick(cls, v: str | None) -> str | None:
+        return RegisterIn._nick(v) if v else None
+
+    @field_validator("recovery_code")
+    @classmethod
+    def _recovery(cls, v: str | None) -> str | None:
+        if v is None:
+            return None
+        v = re.sub(r"[\s-]", "", v).upper()
+        if not re.fullmatch(r"[A-Z2-7]{16}", v):
+            raise ValueError("Código pessoal: informe os 16 caracteres do seu cartão.")
+        return v

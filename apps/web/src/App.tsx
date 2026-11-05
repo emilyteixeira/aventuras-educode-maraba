@@ -46,7 +46,7 @@ function Guard({ children, tutor }: { children: ReactElement; tutor?: boolean })
   const { me, loading } = useSession();
   const loc = useLocation();
   if (loading) return <main className="page center">Carregando…</main>;
-  if (!me) return <Navigate to="/entrar" state={{ from: loc.pathname }} replace />;
+  if (!me) return <Navigate to={tutor ? "/professor" : loc.pathname.startsWith("/sala/") ? `/participar/${loc.pathname.split("/")[2]}` : `/entrar${loc.search}`} state={{ from: loc.pathname }} replace />;
   if (tutor && me.role !== "tutor") return <Navigate to="/jogar" replace />;
   return children;
 }
@@ -62,9 +62,11 @@ export default function App() {
         <div id="main">
           <Routes>
             <Route path="/" element={<Landing />} />
-            <Route path="/entrar" element={<Auth />} />
+            <Route path="/entrar" element={<Join />} />
+            <Route path="/participar/:code" element={<Join />} />
+            <Route path="/professor" element={<Auth />} />
             <Route path="/onboarding" element={<Guard><Onboarding /></Guard>} />
-            <Route path="/jogar" element={<Guard><Join /></Guard>} />
+            <Route path="/jogar" element={<Join />} />
             <Route path="/tutor" element={<Guard tutor><TutorHome /></Guard>} />
             <Route path="/sala/:code" element={<Guard><Room /></Guard>} />
             {Design && <Route path="/design" element={<Suspense fallback={null}><Design /></Suspense>} />}

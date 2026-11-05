@@ -9,7 +9,7 @@ os.environ.setdefault("AVENTURAS_TUTOR_CODE", "TUTOR-TESTE")
 
 @pytest_asyncio.fixture
 async def app_db(tmp_path):
-    """App com SQLite em arquivo temporário (rápido). Postgres real: ver test_postgres.py."""
+    """SQLite temporário ou PostgreSQL descartável fornecido por TEST_DATABASE_URL."""
     from app import db
     from app.config import get_settings
     from app.game.content import load_era

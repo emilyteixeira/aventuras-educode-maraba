@@ -1,6 +1,7 @@
 """Senhas (argon2id), tokens de sessão e limite de tentativas."""
 
 import asyncio
+import base64
 import hashlib
 import secrets
 import time
@@ -41,6 +42,10 @@ def new_token() -> str:
 
 def token_hash(token: str) -> str:
     return hashlib.sha256(token.encode()).hexdigest()
+
+
+def new_student_code() -> str:
+    return base64.b32encode(secrets.token_bytes(10)).decode("ascii")
 
 
 class RateLimiter:

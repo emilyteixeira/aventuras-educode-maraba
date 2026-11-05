@@ -1,5 +1,6 @@
 import type { GameState } from "../types";
 import { Leaderboard, Podium, SHAPES, TimerBar, useRemaining } from "./shared";
+import RoomInvite from "./RoomInvite";
 
 interface Props {
   s: GameState;
@@ -30,8 +31,7 @@ export default function TutorPanel({ s, send, receivedAt }: Props) {
   return (
     <main className="page stack">
       <div className="card raised center">
-        <p className="hint">Alunos: entrem em <strong>{location.host}</strong>, façam login e digitem o código</p>
-        <div className="code-big" aria-label={`Código da sala ${s.code.split("").join(" ")}`}>{s.code}</div>
+        <RoomInvite code={s.code} />
         <p className="row" style={{ justifyContent: "center", margin: 0 }}>
           <span className="chip gold">{PHASE_LABEL[s.phase]}</span>
           <span className="chip teal">{s.connected} conectados / {s.players} na sala</span>

@@ -31,7 +31,8 @@ export default function Landing() {
         </Link>
       </p>
       <p className="stats-line">5 missões · 20 desafios · 1 selo secreto</p>
-      <p className="hint">Curso de extensão EduCode Marabá · Tutores Hernandes e Emily</p>
+      <Link className="btn ghost" to="/professor">Acesso dos professores e tutores</Link>
+      <p className="hint">Curso de extensão EduCode Marabá · Tutores Emily, Hernandes e Felipe</p>
     </main>
   );
 }

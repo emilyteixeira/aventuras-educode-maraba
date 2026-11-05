@@ -81,7 +81,7 @@ function Lobby({ s }: { s: GameState }) {
           </>
         )}
       </div>
-      <p className="notice">ⓘ Dica: ouçam atentamente Hernandes e Emily. A frase do selo está escondida nas explicações.</p>
+      <p className="notice">ⓘ Dica: ouçam atentamente Emily, Hernandes e Felipe. A frase do selo está escondida nas explicações.</p>
     </section>
   );
 }

@@ -25,6 +25,7 @@ export interface Me {
   id: number;
   nickname: string;
   role: "student" | "tutor";
+  room_code: string | null;
   xp: number;
   level: number;
   onboarding_done: boolean;

@@ -1,13 +1,16 @@
-// Ensaio ponta a ponta: 1 tutor + 3 alunos jogam a Era 1 inteira num Chromium real.
+// Ensaio ponta a ponta: 3 tutores + 3 alunos, PIN/QR e recuperação em outro aparelho.
 // Pré-requisito: API em BASE_URL (padrão http://localhost:8000) com apps/web/dist compilado.
-//   TUTOR_CODE / CLASS_CODE devem bater com o servidor (ver apps/api/scripts/dev_server.py).
+//   TUTOR_CODE deve bater com o servidor (ver apps/api/scripts/dev_server.py).
 import { chromium } from "playwright-core";
 import { createRequire } from "node:module";
 import { mkdirSync, readFileSync } from "node:fs";
+import assert from "node:assert/strict";
+import jsQR from "jsqr";
+import { PNG } from "pngjs";
 
 const BASE = process.env.BASE_URL ?? "http://localhost:8000";
+assert.ok(["localhost", "127.0.0.1", "[::1]"].includes(new URL(BASE).hostname), "E2E permitido somente em servidor local de ensaio.");
 const TUTOR_CODE = process.env.TUTOR_CODE ?? "TUTOR-ENSAIO";
-const CLASS_CODE = process.env.CLASS_CODE ?? "TURMA-ENSAIO";
 const SHOTS = process.env.SHOTS_DIR ?? "e2e/shots";
 const CHROME = process.env.CHROME_PATH ?? "/opt/pw-browsers/chromium-1194/chrome-linux/chrome";
 const require = createRequire(import.meta.url);
@@ -29,15 +32,31 @@ async function newUser(browser, name, viewport, mobile = false) {
   return { name, ctx, page };
 }
 
-async function register(u, role) {
+async function registerTutor(u) {
   const p = u.page;
-  await p.goto(`${BASE}/entrar`);
-  await p.getByRole("tab", { name: "Criar conta" }).click();
-  await p.getByLabel("Apelido de aventureiro").fill(u.name);
-  await p.getByLabel("E-mail (Gmail)").fill(`${u.name.toLowerCase()}.${stamp}@gmail.com`);
+  await p.goto(`${BASE}/professor`);
+  await p.getByRole("button", { name: "Tenho convite de tutor" }).click();
+  await p.getByLabel("Nome do tutor").fill(u.name);
+  await p.getByLabel("E-mail do tutor").fill(`${u.name.toLowerCase()}.${stamp}@example.test`);
   await p.getByLabel("Senha").fill("senha-segura-123");
-  await p.getByLabel("Código da turma").fill(role === "tutor" ? TUTOR_CODE : CLASS_CODE);
+  await p.getByLabel("Convite secreto de tutor").fill(TUTOR_CODE);
   await p.getByRole("button", { name: "Criar e começar" }).click();
+  await p.waitForURL("**/tutor");
+}
+
+async function enterStudent(u, code, url) {
+  const p = u.page;
+  await p.goto(url ?? `${BASE}/entrar`);
+  await p.getByLabel("PIN da sala").fill(code);
+  assert.equal(await p.locator('input[type="email"]').count(), 0);
+  await p.getByLabel("Apelido de aventureiro").fill(u.name);
+  if (u.name === "Ana") await axeCheck(u, "entrada-pin");
+  await p.getByRole("button", { name: "Entrar na sala", exact: true }).click();
+  // Código sintético mantido apenas na memória do teste: nunca em logs/capturas.
+  u.personal = await p.getByLabel("Código pessoal", { exact: true }).innerText();
+  assert.match(u.personal, /^[A-Z2-7]{16}$/);
+  if (u.name === "Ana") await axeCheck(u, "cartao-pessoal");
+  await p.getByRole("button", { name: "Guardei meu código · continuar" }).click();
 }
 
 async function axeCheck(u, label) {
@@ -56,7 +75,7 @@ async function axeCheck(u, label) {
 
 async function onboarding(u, cls, shot) {
   const p = u.page;
-  await p.waitForURL("**/onboarding");
+  await p.waitForURL(/\/onboarding\?sala=/);
   await p.getByRole("button", { name: new RegExp(cls) }).first().click();
   if (shot) {
     await p.screenshot({ path: `${SHOTS}/${u.name}-onboarding-edu.png` });
@@ -70,7 +89,7 @@ async function onboarding(u, cls, shot) {
   await p.getByRole("button", { name: "Próximo" }).click(); // mundo
   await p.getByRole("button", { name: "Próximo" }).click(); // tutores
   await p.getByRole("button", { name: "Entrar no mundo!" }).click();
-  await p.waitForURL("**/jogar");
+  await p.waitForURL(/\/sala\//);
 }
 
 const clean = (s) => s.replace(/\s+✓\s*$/, "").trim();
@@ -78,6 +97,11 @@ const clean = (s) => s.replace(/\s+✓\s*$/, "").trim();
 async function main() {
   const browser = await chromium.launch({ executablePath: CHROME, args: ["--no-sandbox"] });
   const tutor = await newUser(browser, "Emily", { width: 1366, height: 768 });
+  const tutors = [
+    tutor,
+    await newUser(browser, "Hernandes", { width: 1024, height: 768 }),
+    await newUser(browser, "Felipe", { width: 390, height: 844 }, true),
+  ];
   const students = [
     await newUser(browser, "Ana", { width: 390, height: 844 }, true),
     await newUser(browser, "Bruno", { width: 1366, height: 768 }),
@@ -85,22 +109,32 @@ async function main() {
   ];
 
   // --- tutor cria a sala
-  await register(tutor, "tutor");
-  await tutor.page.waitForURL("**/tutor");
+  for (const t of tutors) await registerTutor(t);
+  await axeCheck(tutor, "home-tutor");
   await tutor.page.getByRole("button", { name: /Criar sala/ }).click();
   await tutor.page.waitForSelector(".code-big");
   const code = (await tutor.page.locator(".code-big").innerText()).trim();
   log("sala", code);
+  const qrImage = PNG.sync.read(await tutor.page.locator(".room-qr").screenshot());
+  const decoded = jsQR(new Uint8ClampedArray(qrImage.data), qrImage.width, qrImage.height);
+  assert.ok(decoded, "QR deve ser legível");
+  const inviteUrl = `${BASE}/participar/${code}`;
+  assert.equal(decoded.data, inviteUrl);
+  assert.equal(await tutor.page.getByLabel("Link de entrada dos alunos").inputValue(), inviteUrl);
+  for (const t of tutors.slice(1)) {
+    await t.page.getByRole("button", { name: "Atualizar salas" }).click();
+    await t.page.getByRole("link", { name: `Acompanhar sala ${code}` }).click();
+    await t.page.getByRole("heading", { name: "Controles", exact: true }).waitFor();
+  }
+  await axeCheck(tutors[2], "painel-felipe-mobile");
   await tutor.page.getByLabel(/Avançar sozinho/).click(); // estado vem do servidor: espera o eco
   await tutor.page.waitForFunction(() => !document.querySelector("input[type=checkbox]").checked);
 
   // --- alunos: cadastro, onboarding, entrar na sala
   const classes = ["Paladino", "Mago", "Robô"];
   for (const [i, u] of students.entries()) {
-    await register(u, "student");
+    await enterStudent(u, code, i === 1 ? decoded.data : undefined);
     await onboarding(u, classes[i], i < 2);
-    await u.page.getByLabel(/Código da sala/).fill(code);
-    await u.page.getByRole("button", { name: "Entrar na sala" }).click();
     await u.page.waitForURL(`**/sala/${code}`);
     await u.page.getByText(/Você entrou/).waitFor();
   }
@@ -115,9 +149,10 @@ async function main() {
   await tutor.page.getByRole("button", { name: /Iniciar Era 1/ }).click();
   await students[0].page.screenshot({ path: `${SHOTS}/Ana-intro.png` });
 
-  const T = tutor.page;
+  let T = tutor.page;
   let questionNo = 0;
   for (let m = 1; m <= 5; m++) {
+    T = tutors[(m - 1) % tutors.length].page;
     for (const u of students) await u.page.locator(".mission-banner").waitFor();
     if (m === 1) await axeCheck(students[0], "intro");
     await T.getByRole("button", { name: "Começar missão ▶" }).click();
@@ -171,7 +206,7 @@ async function main() {
       if (q < 4) await T.locator(".timer").waitFor();
     }
     for (const u of students) await u.page.locator(".podium").first().waitFor();
-    log("missão", m, "ok · pódio");
+    log("missão", m, "ok · pódio · tutor", tutors[(m - 1) % tutors.length].name);
     if (m === 1 || m === 5) {
       await students[0].page.screenshot({ path: `${SHOTS}/Ana-podio-m${m}.png` });
       await students[1].page.screenshot({ path: `${SHOTS}/Bruno-podio-m${m}.png` });
@@ -194,30 +229,59 @@ async function main() {
   await a.getByRole("button", { name: "Decifrar o selo" }).click();
   await a.getByText("O Selo do Cartógrafo").waitFor();
   await a.screenshot({ path: `${SHOTS}/Ana-recompensa.png` });
+  const savedProfile = await (await students[0].ctx.request.get(`${BASE}/api/me`)).json();
   // colegas do mesmo grupo veem a recompensa sem digitar
   const group = await T.locator(".lb li", { hasText: "🔓" }).count();
   log("grupos com selo aberto:", group);
   await T.screenshot({ path: `${SHOTS}/Emily-painel-selo.png` });
+  // Nova sala mantém o teste de recuperação independente de sala já encerrada.
+  await tutor.page.goto(`${BASE}/tutor`);
+  await tutor.page.getByRole("button", { name: /Criar sala/ }).click();
+  const nextCode = (await tutor.page.locator(".code-big").innerText()).trim();
   await T.getByRole("button", { name: "Encerrar sala" }).click();
   await students[1].page.getByRole("heading", { name: "Fim da Era 1!" }).waitFor();
   await students[1].page.screenshot({ path: `${SHOTS}/Bruno-final.png` });
 
-  // --- persistência: login de novo
+  // --- persistência: outro contexto recupera o mesmo ID, Edu, XP e inventário.
   const again = await newUser(browser, "Ana2", { width: 390, height: 844 }, true);
-  await again.page.goto(`${BASE}/entrar`);
-  await again.page.getByLabel("E-mail (Gmail)").fill(`ana.${stamp}@gmail.com`);
-  await again.page.getByLabel("Senha").fill("senha-segura-123");
-  await again.page.getByRole("button", { name: "Entrar", exact: true }).last().click();
-  await again.page.waitForURL("**/jogar");
+  await again.page.goto(`${BASE}/participar/${nextCode}`);
+  await again.page.getByRole("button", { name: "Já tenho Edu · recuperar" }).click();
+  await again.page.getByLabel("Código pessoal do aluno").fill(students[0].personal);
+  await again.page.getByRole("button", { name: "Recuperar e entrar" }).click();
+  await again.page.waitForURL(`**/sala/${nextCode}`);
   await again.page.locator("svg.edu").first().waitFor();
-  await again.page.screenshot({ path: `${SHOTS}/Ana-login-persistente.png` });
+  const restored = await (await again.ctx.request.get(`${BASE}/api/me`)).json();
+  assert.equal(restored.id, savedProfile.id);
+  assert.equal(restored.xp, savedProfile.xp);
+  assert.deepEqual(restored.character, savedProfile.character);
+  await axeCheck(again, "recuperacao-outro-aparelho");
+  await again.page.screenshot({ path: `${SHOTS}/Ana-recuperacao-persistente.png` });
+  // Recuperação assistida: identificação pelo tutor, rotação e revogação também do WS.
+  await tutor.page.goto(`${BASE}/tutor`);
+  await tutor.page.getByLabel("Apelido exato do aluno").fill("Ana");
+  await tutor.page.getByRole("button", { name: "Buscar perfil do aluno" }).click();
+  await tutor.page.getByRole("radio", { name: new RegExp(`perfil ${savedProfile.id} ·`) }).check();
+  await tutor.page.getByLabel("Identifiquei o aluno presencialmente e confirmei o perfil").check();
+  await axeCheck(tutor, "recuperacao-assistida");
+  await tutor.page.getByRole("button", { name: "Emitir novo código pessoal" }).click();
+  const newCode = await tutor.page.getByLabel("Novo código pessoal", { exact: true }).innerText();
+  assert.ok(newCode !== students[0].personal, "Emissão deve trocar o código pessoal");
+  await tutor.page.getByRole("button", { name: "Entreguei o código · ocultar" }).click();
+  await again.page.waitForURL(`**/participar/${nextCode}`);
+  await again.page.getByRole("button", { name: "Já tenho Edu · recuperar" }).click();
+  await again.page.getByLabel("Código pessoal do aluno").fill(newCode);
+  await again.page.getByRole("button", { name: "Recuperar e entrar" }).click();
+  await again.page.waitForURL(`**/sala/${nextCode}`);
+  const afterReset = await (await again.ctx.request.get(`${BASE}/api/me`)).json();
+  assert.equal(afterReset.id, savedProfile.id);
+  assert.equal(afterReset.xp, savedProfile.xp);
 
   await browser.close();
   console.log("\n=== RESULTADO ===");
   if (problems.length) {
     console.log("PROBLEMAS:\n" + [...new Set(problems)].join("\n"));
     process.exitCode = 1;
-  } else console.log("OK: aula simulada completa, sem erros de console nem violações de acessibilidade.");
+  } else console.log("OK: 3 tutores, PIN/QR decodificado, 5 missões, 20 perguntas e recuperação do Edu/XP em outro aparelho; sem erros de console nem violações de acessibilidade.");
 }
 
 main().catch((e) => {

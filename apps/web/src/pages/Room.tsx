@@ -1,14 +1,20 @@
 import { Link, Navigate, useParams } from "react-router-dom";
+import { useEffect } from "react";
 import StudentGame from "../components/StudentGame";
 import TutorPanel from "../components/TutorPanel";
 import { useGameSocket } from "../useGameSocket";
+import { useSession } from "../session";
 
 export default function Room() {
   const { code = "" } = useParams();
   const { state, online, fatal, toast, send, receivedAt } = useGameSocket(code.toUpperCase());
+  const { refresh } = useSession();
+  useEffect(() => {
+    if (fatal === "unauth") void refresh();
+  }, [fatal, refresh]);
 
-  if (fatal === "unauth") return <Navigate to="/entrar" replace />;
-  if (fatal === "onboarding") return <Navigate to="/onboarding" replace />;
+  if (fatal === "unauth") return <Navigate to={`/participar/${code}`} replace />;
+  if (fatal === "onboarding") return <Navigate to={`/onboarding?sala=${code}`} replace />;
   if (fatal === "notfound" || fatal === "forbidden")
     return (
       <main className="page center stack" style={{ maxWidth: 560 }}>

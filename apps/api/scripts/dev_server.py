@@ -18,6 +18,6 @@ uri = srv.get_uri().replace("postgresql://postgres:@", "postgresql+asyncpg://pos
 os.environ.setdefault("AVENTURAS_DATABASE_URL", uri)
 os.environ.setdefault("AVENTURAS_CLASS_CODE", "TURMA-ENSAIO")
 os.environ.setdefault("AVENTURAS_TUTOR_CODE", "TUTOR-ENSAIO")
-print(f"[dev_server] Postgres: {uri}", flush=True)
+print("[dev_server] PostgreSQL de ensaio pronto.", flush=True)
 sys.stdout.flush()
-uvicorn.run("app.main:app", host="0.0.0.0", port=port, log_level="warning")
+uvicorn.run("app.main:app", host="127.0.0.1", port=port, log_level="warning")

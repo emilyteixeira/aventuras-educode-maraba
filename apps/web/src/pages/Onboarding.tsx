@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { api } from "../api";
 import { sfx, unlockAudioOnGesture } from "../audio";
 import Edu, { hairHex, robotHex, skinHex } from "../components/Edu";
@@ -21,6 +21,7 @@ const DEFAULT_ROBOT: Appearance = { cls: "robo", color: "turquesa", accessories:
 export default function Onboarding() {
   const { me, refresh } = useSession();
   const nav = useNavigate();
+  const [query] = useSearchParams();
   const [cat, setCat] = useState<Catalog | null>(null);
   const [step, setStep] = useState(0);
   const [app, setApp] = useState<Appearance>(() => {
@@ -69,7 +70,8 @@ export default function Onboarding() {
       await api.saveCharacter({ appearance: app, tools, scenario, world });
       await refresh();
       sfx("fanfare");
-      nav("/jogar");
+      const room = query.get("sala") ?? me?.room_code;
+      nav(room && /^[A-HJKMNP-Z2-9]{6}$/.test(room) ? `/sala/${room}` : "/jogar");
     } catch (e) {
       setError(e instanceof Error ? e.message : "Não deu para salvar.");
     } finally {
@@ -248,13 +250,13 @@ export default function Onboarding() {
         <section className="card stack" aria-labelledby="h-tutores">
           <h3 id="h-tutores" className="card-title">Recado dos tutores</h3>
           <p>
-            Seu Edu está pronto e já entrou no mundo encantado. Agora o jogo depende de vocês: os tutores <strong>Hernandes</strong> e <strong>Emily</strong> vão explicar o
+            Seu Edu está pronto e já entrou no mundo encantado. Agora o jogo depende de vocês: os tutores <strong>Emily</strong>, <strong>Hernandes</strong> e <strong>Felipe</strong> vão explicar o
             conteúdo da aula.
           </p>
           <p>
             Prestem atenção em cada palavra. No final, o grupo precisa <strong>descobrir a frase secreta</strong> que abre a Era 1.
           </p>
-          <p className="notice">ⓘ Quando os tutores abrirem a sala, você recebe um código de 6 letras.</p>
+          <p className="notice">ⓘ Seu PIN tem 6 caracteres. Ao terminar, você entra na sala escolhida.</p>
         </section>
       )}
 

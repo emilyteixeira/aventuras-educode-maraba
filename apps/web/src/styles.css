@@ -214,6 +214,11 @@ input:focus { border-color: var(--teal); }
 .answer-key li.right { border: var(--bw) solid var(--ok); background: var(--ok-bg); font-weight: 700; }
 input.code-input { font-family: var(--font-pixel); font-weight: 400; text-align: center; font-size: 2rem; letter-spacing: .3em; text-transform: uppercase; }
 .desk-only { display: none; }
+.room-qr { display: block; margin: 12px auto; max-width: 100%; height: auto; }
+.room-invite input { text-align: left; font-size: 1rem; }
+.personal-code { display: block; font-family: var(--font-mono); font-size: clamp(1rem, 5vw, 1.4rem); letter-spacing: .04em; overflow-wrap: anywhere; color: var(--gold); }
+fieldset { min-width: 0; border: var(--bw) solid var(--line-3); }
+input[type="radio"], input[type="checkbox"] { min-width: 24px; min-height: 24px; accent-color: var(--teal); }
 @media (min-width: 720px) and (hover: hover) { .desk-only { display: revert; } }
 
 /* teclas (dicas de teclado no desktop) */

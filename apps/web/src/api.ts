@@ -30,8 +30,15 @@ export const api = {
   register: (b: { email: string; password: string; nickname: string; code: string }) =>
     call<{ id: number; role: string }>("POST", "/api/auth/register", b),
   login: (b: { email: string; password: string }) => call<{ id: number; role: string }>("POST", "/api/auth/login", b),
+  studentJoin: (b: { code: string; nickname?: string; recovery_code?: string }) =>
+    call<{ id: number; nickname: string; room_code: string; personal_code: string | null }>("POST", "/api/auth/student", b),
   logout: () => call<void>("POST", "/api/auth/logout"),
   saveCharacter: (b: unknown) => call<{ ok: boolean }>("PUT", "/api/me/character", b),
   createSession: () => call<{ code: string }>("POST", "/api/sessions"),
+  listSessions: () => call<{ code: string; era: string; status: string }[]>("GET", "/api/sessions"),
+  findStudents: (q: string) =>
+    call<{ id: number; nickname: string; created_at: string }[]>("GET", `/api/sessions/students/search?q=${encodeURIComponent(q)}`),
+  resetStudentCode: (id: number) =>
+    call<{ id: number; nickname: string; personal_code: string }>("POST", `/api/sessions/students/${id}/recovery-code`),
   checkSession: (code: string) => call<{ code: string }>("GET", `/api/sessions/${encodeURIComponent(code)}`),
 };

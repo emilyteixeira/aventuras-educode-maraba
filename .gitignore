@@ -4,6 +4,7 @@ __pycache__/
 *.pyc
 .pytest_cache/
 .ruff_cache/
+*.egg-info/
 *.db
 # Node
 node_modules/
@@ -12,12 +13,13 @@ dist/
 # Env e segredos
 .env
 .env.*
-!.env.example
+# Arquivos locais em qualquer pasta/subpasta
+AGENTS.md
+.DS_Store
 # Capturas de teste
 /tmp/
 playwright-report/
 test-results/
-!.env.example
 
 # Docs privados (não publicar)
 docs/HANDOVER.md
