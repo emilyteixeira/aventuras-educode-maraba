@@ -15,6 +15,7 @@ dist/
 .env.*
 # Arquivos locais em qualquer pasta/subpasta
 AGENTS.md
+CLAUDE.md
 .DS_Store
 # Capturas de teste
 /tmp/
