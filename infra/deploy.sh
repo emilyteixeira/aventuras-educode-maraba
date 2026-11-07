@@ -74,5 +74,7 @@ echo "Tutores cadastrados (apelido, desde):"
   -c "select nickname, to_char(created_at, 'DD/MM/YYYY') from users where role = 'tutor' order by id"
 echo
 echo "Pronto. Backup: $DUMP"
-echo "Desfazer (código): git checkout <hash anterior> && ${COMPOSE[*]} up -d --build"
+echo "Desfazer (código), só se nenhum aluno novo entrou depois do deploy:"
+echo "  git checkout <hash anterior> && ${COMPOSE[*]} up -d --build"
+echo "  Nunca volte para antes de 7a5531b com alunos sem e-mail no banco; restaure o backup junto."
 echo "Restaurar banco:    ${COMPOSE[*]} exec -T db pg_restore -U aventuras -d aventuras --clean --if-exists < $DUMP"

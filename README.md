@@ -4,18 +4,21 @@ Aventura gamificada ao vivo (Kahoot + RPG) para ensinar Computação a estudante
 
 PRD, handover, deploy e histórico de sessões ficam fora deste repositório público.
 
-## Estado desta revisão (04/11/2026)
+## Estado (07/11/2026)
+
+Em produção em `aventuras.educodemaraba.com.br` desde 07/11/2026, com a entrada por PIN/QR e os slides da aula.
 
 Alunos entram por PIN/QR e apelido, sem e-mail ou senha. O código pessoal privado recupera o mesmo Edu e progresso em outro aparelho. Tutores têm contas individuais por convite secreto, podem acompanhar a mesma sala e ajudar na recuperação de perfis antigos sem associar contas por apelido.
 
-Validação: 49 testes aprovados em SQLite e PostgreSQL; build/typecheck e ruff aprovados; E2E com 3 tutores + 3 alunos, QR decodificado, 5 missões / 20 perguntas e recuperação entre aparelhos e assistida. Nenhum erro de console ou violação axe nas telas avaliadas (não substitui avaliação manual).
+Validação: 49 testes aprovados em SQLite e PostgreSQL; build/typecheck e ruff aprovados; E2E com 3 tutores + 3 alunos, QR decodificado, 5 missões / 20 perguntas e recuperação entre aparelhos e assistida. Nenhum erro de console ou violação axe nas telas avaliadas (não substitui avaliação manual). Ainda não testado com alunos, em celulares reais nem no laboratório da escola.
 
-Esta revisão não implica deploy. Autorizações para a atividade são organizadas fora da plataforma, sem coleta de e-mail na entrada do aluno.
+Autorizações para a atividade são organizadas fora da plataforma, sem coleta de e-mail na entrada do aluno.
 
 ## Acesso
 
 - Alunos: `/entrar` com PIN da sala; QR abre `/participar/PIN`. Guardar o código pessoal de 16 caracteres em local seguro; não compartilhar com colegas.
 - Tutores: `/professor`, opção **Tenho convite de tutor** para cadastrar e-mail, senha e nome. Felipe define a própria senha; obtenha o convite com Emily por canal privado, nunca pelo PIN público.
+- Slides da aula: `/slides` (15 slides da Era 1; setas ou clique para navegar, `F` para tela cheia). Pelo botão **Abrir slides da aula com este PIN** no painel da sala, o slide "Hora de jogar" mostra o PIN e o QR reais. Notas do apresentador não são publicadas.
 - Conta antiga de aluno: o tutor busca o apelido exato em seu painel, identifica o aluno presencialmente e emite um código pessoal. ID, Edu, XP e inventário são preservados. Apelidos repetidos não comprovam identidade. Reemissão invalida o código e as sessões anteriores, inclusive WebSockets.
 
 ## Stack
@@ -36,15 +39,16 @@ Configure localmente um `.env` com `POSTGRES_PASSWORD`, `AVENTURAS_TUTOR_CODE`, 
 
 **Banco existente exige migração antes de usar a nova versão.** `create_all()` não altera colunas antigas. Não apagar tabelas nem recriar volumes.
 
-Para um deploy futuro, em janela de manutenção:
-1. Fazer backup protegido fora do repo e verificar que é restaurável.
-2. Compilar a nova imagem do app, mantendo o banco existente; parar o app antigo antes da migração.
-3. Executar `python scripts/migrate_student_access.py` no ambiente da API configurado para o banco escolhido: por padrão só verifica metadados, sem ler ou exibir credenciais.
-4. Revisar o preflight e executar o mesmo comando com `--apply`, se autorizado. A migração é transacional e idempotente, torna e-mail/hash de senha opcionais e cria `student_credentials`; não apaga contas ou progresso.
-5. Iniciar o app atualizado e validar tutores, PIN/QR e recuperação. Não fazer rollback cego para a versão que exige e-mail em todos os perfis após criar novos alunos sem e-mail.
+Deploy no servidor, fora do horário de aula: `bash infra/deploy.sh` a partir da raiz do repositório. O script pede confirmação antes de cada passo que altera algo:
+1. Backup com `pg_dump`, guardado fora do repositório, e verificação (dump legível e com as tabelas principais). Se falhar, nada é alterado.
+2. `git pull --ff-only` e build da nova imagem, com o app antigo ainda no ar.
+3. `python scripts/migrate_student_access.py` (só verifica metadados) e, se autorizado, `--apply`. A migração é transacional e idempotente, torna e-mail/hash de senha opcionais e cria `student_credentials`; não apaga contas ou progresso, e a versão antiga do app continua funcionando sobre o banco migrado.
+4. Subida da nova versão e checagens das rotas principais.
+
+Não fazer rollback cego para a versão que exige e-mail em todos os perfis após criar novos alunos sem e-mail; nesse caso, restaurar o backup junto.
 
 Nenhum desses passos de produção é executado pelo ensaio E2E.
 
 ## Estrutura
 
-`apps/api` (FastAPI: `app/game/engine.py` é o motor do jogo; `app/content/era1.json` são as perguntas) · `apps/web` (React) · `infra` (Caddy) · `docs` (PRD, handover, sessões).
+`apps/api` (FastAPI: `app/game/engine.py` é o motor do jogo; `app/content/era1.json` são as perguntas) · `apps/web` (React; slides da aula em `src/slides/`) · `infra` (Caddy e `deploy.sh`) · `docs` (design system; PRD, handover e sessões ficam fora do repositório).
