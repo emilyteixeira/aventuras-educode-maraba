@@ -240,3 +240,16 @@ kbd { font-family: var(--font-mono); font-size: .85em; background: var(--surface
   .topbar .nick { max-width: 34vw; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   body { font-size: 17px; }
 }
+
+/* ---- Slides da aula (/slides) ------------------------------------------ */
+/* Palco fixo 1920×1080 escalado para caber na tela; estilos vêm inline nos slides. */
+.deck { position: fixed; inset: 0; z-index: 50; display: flex; flex-direction: column; background: #07060b; }
+.deck-frame { position: relative; flex: 1; overflow: hidden; cursor: pointer; background: #07060b; }
+.deck-stage { position: absolute; left: 50%; top: 50%; transform-origin: center; }
+.deck-stage section { position: relative; box-sizing: border-box; width: 100%; height: 100%; overflow: hidden; }
+.deck-stage section *, .deck-stage section *::before, .deck-stage section *::after { box-sizing: border-box; margin: 0; }
+.deck-stage ul, .deck-stage ol { padding-left: 1.2em; }
+.deck-stage [data-slot="qr"] svg { display: block; width: 360px; height: 360px; }
+.deck-qr-empty { font-size: 32px; line-height: 1.3; text-align: center; color: #ffd23f; }
+.deck-bar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; justify-content: center; padding: 8px 16px; background: #0c0b10; }
+.deck-frame:fullscreen { cursor: none; }

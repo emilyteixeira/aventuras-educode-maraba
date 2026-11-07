@@ -20,6 +20,9 @@ export default function RoomInvite({ code }: { code: string }) {
         if (!navigator.clipboard) setMessage("Selecione o link acima e copie manualmente.");
       }}>Copiar link dos alunos</button>
       <p className="hint" role="status">{message}</p>
+      <a className="btn alt" href={`/slides?sala=${encodeURIComponent(code)}`} target="_blank" rel="noopener">
+        Abrir slides da aula com este PIN
+      </a>
     </section>
   );
 }

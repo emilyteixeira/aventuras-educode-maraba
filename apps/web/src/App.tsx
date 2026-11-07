@@ -9,6 +9,8 @@ import Room from "./pages/Room";
 import TutorHome from "./pages/TutorHome";
 
 // Vitrine do design system: só existe em desenvolvimento (fora do build de produção).
+// Slides da aula: carregados só quando /slides é aberto (não pesam no celular do aluno).
+const Slides = lazy(() => import("./pages/Slides"));
 const Design = import.meta.env.DEV ? lazy(() => import("./pages/Design")) : null;
 
 function TopBar() {
@@ -67,6 +69,7 @@ export default function App() {
             <Route path="/professor" element={<Auth />} />
             <Route path="/onboarding" element={<Guard><Onboarding /></Guard>} />
             <Route path="/jogar" element={<Join />} />
+            <Route path="/slides" element={<Suspense fallback={<main className="page center">Carregando slides…</main>}><Slides /></Suspense>} />
             <Route path="/tutor" element={<Guard tutor><TutorHome /></Guard>} />
             <Route path="/sala/:code" element={<Guard><Room /></Guard>} />
             {Design && <Route path="/design" element={<Suspense fallback={null}><Design /></Suspense>} />}
